@@ -1,0 +1,1382 @@
+From 550cce4688c6c4f2f15c23cf89a1db0a0740fadb Mon Sep 17 00:00:00 2001
+From: Shazad <shazadsb@gmail.com>
+Date: Wed, 21 Nov 2012 14:00:04 -0500
+Subject: [PATCH 1/5] login
+
+---
+ AndroidManifest.xml                       | 157 ++++++++++++-----------
+ project.properties                        |   2 +-
+ res/layout/login.xml                      |  65 ++++++++++
+ src/com/robodex/app/LoginActivity.java    |  95 ++++++++++++++
+ src/com/robodex/app/MainActivity.java     | 199 +++++++++++++++++-------------
+ src/com/robodex/data/DatabaseHandler.java | 123 ++++++++++++++++++
+ src/com/robodex/request/JSONParser.java   |  89 +++++++++++++
+ src/com/robodex/request/UserLogin.java    |  58 +++++++++
+ 8 files changed, 626 insertions(+), 162 deletions(-)
+ create mode 100644 res/layout/login.xml
+ create mode 100644 src/com/robodex/app/LoginActivity.java
+ create mode 100644 src/com/robodex/data/DatabaseHandler.java
+ create mode 100644 src/com/robodex/request/JSONParser.java
+ create mode 100644 src/com/robodex/request/UserLogin.java
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index ef8c014..f672bfc 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -1,72 +1,85 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.robodex"
+-    android:versionCode="08140060"
+-    android:versionName="0.6" >
+-
+-    <uses-sdk
+-        android:minSdkVersion="8"
+-        android:targetSdkVersion="17" />
+-
+-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+-    <uses-permission android:name="android.permission.INTERNET" />
+-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+-
+-    <uses-feature
+-        android:name="android.hardware.touchscreen"
+-        android:required="false" />
+-
+-    <application
+-        android:name=".Robodex"
+-        android:icon="@drawable/ic_launcher"
+-        android:label="@string/app_name"
+-        android:theme="@style/Theme.Sherlock" >
+-        <uses-library android:name="com.google.android.maps" />
+-
+-        <activity
+-            android:name="com.google.ads.AdActivity"
+-            android:configChanges="keyboard|keyboardHidden|screenLayout|orientation|uiMode|screenSize|smallestScreenSize" >
+-        </activity>
+-        <activity
+-            android:name=".app.MainActivity"
+-            android:label="@string/title_activity_main" >
+-            <intent-filter>
+-                <action android:name="android.intent.action.MAIN" />
+-
+-                <category android:name="android.intent.category.LAUNCHER" />
+-            </intent-filter>
+-        </activity>
+-        <activity
+-            android:name=".app.ItemListActivity"
+-            android:label="@string/title_activity_category"
+-            android:parentActivityName=".app.MainActivity" >
+-            <meta-data
+-                android:name="android.support.PARENT_ACTIVITY"
+-                android:value=".app.MainActivity" />
+-        </activity>
+-        <activity
+-            android:name=".app.DetailActivity"
+-            android:label="@string/title_activity_detail"
+-            android:parentActivityName=".app.CategoryListActivity" >
+-            <meta-data
+-                android:name="android.support.PARENT_ACTIVITY"
+-                android:value=".app.CategoryListActivity" />
+-        </activity>
+-        <activity
+-            android:name=".app.MyMapActivity"
+-            android:label="@string/title_activity_map"
+-            android:parentActivityName=".app.MainActivity"
+-            android:theme="@android:style/Theme.Black.NoTitleBar" >
+-            <meta-data
+-                android:name="android.support.PARENT_ACTIVITY"
+-                android:value=".app.MainActivity" />
+-        </activity>
+-
+-        <provider
+-            android:name=".data.DatabaseContentProvider"
+-            android:authorities="com.robodex"
+-            android:exported="false"
+-            android:multiprocess="true" />
+-    </application>
+-
+-</manifest>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.robodex"
++    android:versionCode="08140060"
++    android:versionName="0.6" >
++
++    <uses-sdk
++        android:minSdkVersion="9"
++        android:targetSdkVersion="17" />
++
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++    <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
++    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
++
++    <uses-feature
++        android:name="android.hardware.touchscreen"
++        android:required="false" />
++
++    <application
++        android:name=".Robodex"
++        android:icon="@drawable/ic_launcher"
++        android:label="@string/app_name"
++        android:theme="@style/Theme.Sherlock" >
++        <uses-library android:name="com.google.android.maps" />
++
++        <activity
++            android:name="com.google.ads.AdActivity"
++            android:configChanges="keyboard|keyboardHidden|screenLayout|orientation|uiMode|screenSize|smallestScreenSize" >
++        </activity>
++        <activity
++            android:name=".app.MainActivity"
++            android:label="@string/title_activity_main" >
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++        <activity
++            android:name=".app.ItemListActivity"
++            android:label="@string/title_activity_category"
++            android:parentActivityName=".app.MainActivity" >
++            <meta-data
++                android:name="android.support.PARENT_ACTIVITY"
++                android:value=".app.MainActivity" />
++        </activity>
++        <activity
++            android:name=".app.DetailActivity"
++            android:label="@string/title_activity_detail"
++            android:parentActivityName=".app.CategoryListActivity" >
++            <meta-data
++                android:name="android.support.PARENT_ACTIVITY"
++                android:value=".app.CategoryListActivity" />
++        </activity>
++        <activity
++            android:name=".app.MyMapActivity"
++            android:label="@string/title_activity_map"
++            android:parentActivityName=".app.MainActivity"
++            android:theme="@android:style/Theme.Black.NoTitleBar" >
++            <meta-data
++                android:name="android.support.PARENT_ACTIVITY"
++                android:value=".app.MainActivity" />
++        </activity>
++
++
++
++		<!--  Login Activity -->
++        <activity
++            android:label="Login Account" 
++            android:name=".app.LoginActivity">
++           android:parentActivityName=".app.MainActivity"
++           
++            <meta-data
++                android:name="android.support.PARENT_ACTIVITY"
++                android:value=".app.MainActivity" />
++        </activity>
++            
++        <provider
++            android:name=".data.DatabaseContentProvider"
++            android:authorities="com.robodex"
++            android:exported="false"
++            android:multiprocess="true" />
++    </application>
++
++</manifest>
+diff --git a/project.properties b/project.properties
+index a78b234..cbf3c46 100644
+--- a/project.properties
++++ b/project.properties
+@@ -12,4 +12,4 @@
+ 
+ # Project target.
+ target=Google Inc.:Google APIs:17
+-android.library.reference.1=../ActionBarSherlock/library
++android.library.reference.1=../library
+diff --git a/res/layout/login.xml b/res/layout/login.xml
+new file mode 100644
+index 0000000..cc03ee7
+--- /dev/null
++++ b/res/layout/login.xml
+@@ -0,0 +1,65 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="fill_parent"
++    android:layout_height="fill_parent"
++    android:background="#3b3b3b" >
++
++    <LinearLayout
++        android:layout_width="fill_parent"
++        android:layout_height="fill_parent"
++        android:orientation="vertical"
++        android:padding="10dip" >
++		<!--  View Title Label -->
++        <TextView
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginBottom="10dip"
++            android:text="LOGIN"
++            android:textSize="25dip"
++            android:textStyle="bold" />
++		<!--  Email Label -->
++
++        <TextView
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content"
++            android:text="User" />
++
++		<!--  User TextField -->
++        <EditText
++            android:id="@+id/loginUser"
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content" />
++        
++		<!--  Password Label -->
++        <TextView
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="15dip"
++            android:text="Password" />
++		<!--  Password TextField -->
++        <EditText
++            android:id="@+id/loginPassword"
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content"
++            android:password="true" />
++        
++        <!--  Error message -->
++        <TextView android:id="@+id/login_error"
++            		android:layout_width="fill_parent"
++            		android:layout_height="wrap_content"
++            		android:textColor="#e30000"
++            		android:padding="10dip"
++            		android:textStyle="bold"/>
++
++		<!--  Login Button -->        
++        <Button
++            android:id="@+id/btnLogin"
++            android:layout_width="fill_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="20dip"
++            android:text="Login" />
++
++     
++    </LinearLayout>
++
++</ScrollView>
+\ No newline at end of file
+diff --git a/src/com/robodex/app/LoginActivity.java b/src/com/robodex/app/LoginActivity.java
+new file mode 100644
+index 0000000..682369d
+--- /dev/null
++++ b/src/com/robodex/app/LoginActivity.java
+@@ -0,0 +1,95 @@
++package com.robodex.app;
++
++import java.util.HashMap;
++
++import org.json.JSONException;
++import org.json.JSONObject;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.util.Log;
++import android.view.View;
++import android.widget.Button;
++import android.widget.EditText;
++import android.widget.TextView;
++
++
++import com.robodex.R;
++import com.robodex.Robodex;
++
++//import com.example.oats.library.DatabaseHandler;
++//import com.example.oats.library.UserLogin;
++
++import com.robodex.data.DatabaseHandler;
++import com.robodex.request.UserLogin;
++
++public class LoginActivity extends Activity {
++	Button   btnLogin;
++	Button   btnLinkToRegister;
++	EditText inputUser;
++	EditText inputPassword;
++	TextView loginErrorMsg;
++
++	// JSON Response node names
++	private static String KEY_SUCCESS    = "success";
++	private static String KEY_ERROR      = "error";
++	private static String KEY_ERROR_MSG  = "error_msg";
++	private static String KEY_UID        = "uid";
++	private static String KEY_NAME       = "name";
++	private static String KEY_user      = "user";
++	private static String KEY_CREATED_AT = "created_at";
++
++	@Override
++	public void onCreate(Bundle savedInstanceState) {
++		super.onCreate(savedInstanceState);
++		setContentView(R.layout.login);
++
++		inputUser    = (EditText) findViewById(R.id.loginUser);
++		inputPassword = (EditText) findViewById(R.id.loginPassword);
++		loginErrorMsg = (TextView) findViewById(R.id.login_error);
++		btnLogin      = (Button)   findViewById(R.id.btnLogin);
++
++		// Login button Click Event
++		btnLogin.setOnClickListener(new View.OnClickListener() {
++
++			public void onClick(View view) {
++				String user    = inputUser.getText().toString();
++				String password = inputPassword.getText().toString();
++				UserLogin userLogin = new UserLogin();
++				JSONObject json = userLogin.loginUser(user, password);				
++				Log.d("Button", "Login");
++				
++				// check for login response
++				try {
++					if (json.getString(KEY_SUCCESS) != null) {
++						loginErrorMsg.setText("");
++						String res = json.getString(KEY_SUCCESS); 
++						if(Integer.parseInt(res) == 1){
++							
++							DatabaseHandler db   = new DatabaseHandler(getApplicationContext());
++							JSONObject json_user = json.getJSONObject("user");
++														
++							userLogin.logoutUser(getApplicationContext());
++							db.addUser(json_user.getString(KEY_NAME), json_user.getString(KEY_user), json.getString(KEY_UID), json_user.getString(KEY_CREATED_AT));						
++														
++							Intent dashboard = new Intent(getApplicationContext(), MainActivity.class);
++														
++							dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++							startActivity(dashboard);
++							
++							// Close Login Screen
++							finish();
++						}else{
++							loginErrorMsg.setText("Please check your username/password");
++							
++						}
++					}
++				} catch (JSONException e) {
++					e.printStackTrace();
++				}
++			}
++		});
++
++	}
++}
+diff --git a/src/com/robodex/app/MainActivity.java b/src/com/robodex/app/MainActivity.java
+index 69f5f88..37efbb6 100644
+--- a/src/com/robodex/app/MainActivity.java
++++ b/src/com/robodex/app/MainActivity.java
+@@ -1,89 +1,110 @@
+-package com.robodex.app;
+-
+-import android.content.Intent;
+-import android.os.Bundle;
+-import android.util.Log;
+-import android.widget.Toast;
+-
+-import com.robodex.R;
+-import com.robodex.Robodex;
+-
+-public class MainActivity extends BaseActivity implements MainListFragment.Callbacks,
+-ItemListFragment.Callbacks {
+-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+-
+-    private boolean mTwoPane;
+-
+-    private String mMainItem;
+-    private String mCategoryItem;
+-
+-    @Override
+-    public void onCreate(Bundle savedInstanceState) {
+-        super.onCreate(savedInstanceState);
+-        setContentView(R.layout.activity_main);
+-
+-        if (findViewById(R.id.fragment_container) != null) {
+-            mTwoPane = true;
+-            ((MainListFragment) getSupportFragmentManager()
+-                    .findFragmentById(R.id.list))
+-                    .setActivateOnItemClick(true);
+-        }
+-    }
+-
+-    @Override
+-    public void onMainItemSelected(int position) {
+-        if (Robodex.DEBUG) {
+-            Toast.makeText(this,"main item selected, position: " + position, Toast.LENGTH_SHORT).show();
+-        }
+-
+-        mMainItem = String.valueOf(position);
+-
+-        if (position == 1) {
+-            startActivity(new Intent(this, MyMapActivity.class));
+-        }
+-        else if (mTwoPane) {
+-            Bundle arguments = new Bundle();
+-            arguments.putString(ItemListFragment.ARG_MAIN_ITEM_ID, mMainItem);
+-            ItemListFragment fragment = new ItemListFragment();
+-            fragment.setArguments(arguments);
+-            getSupportFragmentManager().beginTransaction()
+-            .replace(R.id.fragment_container, fragment)
+-            .commit();
+-        }
+-        else {
+-            Intent category = new Intent(this, ItemListActivity.class);
+-            category.putExtra(ItemListFragment.ARG_MAIN_ITEM_ID, mMainItem);
+-            startActivity(category);
+-        }
+-    }
+-
+-
+-    @Override
+-    public void onItemSelected(int position) {
+-        if (Robodex.DEBUG) {
+-            Toast.makeText(this,"category item selected, position: " + position, Toast.LENGTH_SHORT).show();
+-        }
+-
+-        mCategoryItem = String.valueOf(position);
+-
+-        if (mTwoPane) {
+-            Bundle arguments = new Bundle();
+-            arguments.putString(DetailFragment.ARG_MAIN_ITEM_ID, mMainItem);
+-            arguments.putString(DetailFragment.ARG_CATEGORY_ITEM_ID, mCategoryItem);
+-            DetailFragment fragment = new DetailFragment();
+-            fragment.setArguments(arguments);
+-            getSupportFragmentManager().beginTransaction()
+-            .replace(R.id.fragment_container, fragment)
+-            .commit();
+-        }
+-        else {
+-            // This should never happen
+-            Log.wtf(LOG_TAG, "Going from main activity to detail activity");
+-
+-            Intent details = new Intent(this, DetailActivity.class);
+-            details.putExtra(DetailFragment.ARG_MAIN_ITEM_ID, mMainItem);
+-            details.putExtra(DetailFragment.ARG_CATEGORY_ITEM_ID, mCategoryItem);
+-            startActivity(details);
+-        }
+-    }
+-}
++package com.robodex.app;
++
++import android.content.Intent;
++import android.os.Bundle;
++import android.os.StrictMode;
++import android.util.Log;
++import android.widget.Toast;
++
++import com.robodex.R;
++import com.robodex.Robodex;
++import com.robodex.request.UserLogin;
++
++public class MainActivity extends BaseActivity implements MainListFragment.Callbacks,
++ItemListFragment.Callbacks {
++    private static final String LOG_TAG = MainActivity.class.getSimpleName();
++
++    private boolean mTwoPane;
++
++    private String mMainItem;
++    private String mCategoryItem;
++    
++    
++ public void onCreate() {
++    	
++    	StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
++    }
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++      
++        setContentView(R.layout.activity_main);
++
++        // Check login status in android database
++        UserLogin userLogin = new UserLogin();
++        if(userLogin.isUserLoggedIn(getApplicationContext())){
++        	setContentView(R.layout.activity_main);
++
++        	if (findViewById(R.id.fragment_container) != null) {
++        		mTwoPane = true;
++        		((MainListFragment) getSupportFragmentManager()
++                    .findFragmentById(R.id.list))
++                    .setActivateOnItemClick(true);
++        	}
++        }else{
++        	// user is not logged in show login screen
++        	Intent login = new Intent(getApplicationContext(), LoginActivity.class);
++        	login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++        	startActivity(login);
++        	finish();
++        }
++    }
++
++    @Override
++    public void onMainItemSelected(int position) {
++        if (Robodex.DEBUG) {
++            Toast.makeText(this,"main item selected, position: " + position, Toast.LENGTH_SHORT).show();
++        }
++
++        mMainItem = String.valueOf(position);
++
++        if (position == 1) {
++            startActivity(new Intent(this, MyMapActivity.class));
++        }
++        else if (mTwoPane) {
++            Bundle arguments = new Bundle();
++            arguments.putString(ItemListFragment.ARG_MAIN_ITEM_ID, mMainItem);
++            ItemListFragment fragment = new ItemListFragment();
++            fragment.setArguments(arguments);
++            getSupportFragmentManager().beginTransaction()
++            .replace(R.id.fragment_container, fragment)
++            .commit();
++        }
++        else {
++            Intent category = new Intent(this, ItemListActivity.class);
++            category.putExtra(ItemListFragment.ARG_MAIN_ITEM_ID, mMainItem);
++            startActivity(category);
++        }
++    }
++
++
++    @Override
++    public void onItemSelected(int position) {
++        if (Robodex.DEBUG) {
++            Toast.makeText(this,"category item selected, position: " + position, Toast.LENGTH_SHORT).show();
++        }
++
++        mCategoryItem = String.valueOf(position);
++
++        if (mTwoPane) {
++            Bundle arguments = new Bundle();
++            arguments.putString(DetailFragment.ARG_MAIN_ITEM_ID, mMainItem);
++            arguments.putString(DetailFragment.ARG_CATEGORY_ITEM_ID, mCategoryItem);
++            DetailFragment fragment = new DetailFragment();
++            fragment.setArguments(arguments);
++            getSupportFragmentManager().beginTransaction()
++            .replace(R.id.fragment_container, fragment)
++            .commit();
++        }
++        else {
++            // This should never happen
++            Log.wtf(LOG_TAG, "Going from main activity to detail activity");
++
++            Intent details = new Intent(this, DetailActivity.class);
++            details.putExtra(DetailFragment.ARG_MAIN_ITEM_ID, mMainItem);
++            details.putExtra(DetailFragment.ARG_CATEGORY_ITEM_ID, mCategoryItem);
++            startActivity(details);
++        }
++    }
++}
+diff --git a/src/com/robodex/data/DatabaseHandler.java b/src/com/robodex/data/DatabaseHandler.java
+new file mode 100644
+index 0000000..5394f90
+--- /dev/null
++++ b/src/com/robodex/data/DatabaseHandler.java
+@@ -0,0 +1,123 @@
++package com.robodex.data;
++
++import java.util.HashMap;
++
++import android.content.ContentValues;
++import android.content.Context;
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.database.sqlite.SQLiteOpenHelper;
++
++public class DatabaseHandler extends SQLiteOpenHelper {
++
++	// All Static variables
++	// Database Version
++	private static final int DATABASE_VERSION = 1;
++
++	// Database Name
++	private static final String DATABASE_NAME = "android_api";
++
++	// Login table name
++	private static final String TABLE_LOGIN = "login";
++
++	// Login Table Columns names
++	private static final String KEY_ID = "id";
++	private static final String KEY_NAME = "name";
++	private static final String KEY_EMAIL = "email";
++	private static final String KEY_UID = "uid";
++	private static final String KEY_CREATED_AT = "created_at";
++
++	public DatabaseHandler(Context context) {
++		super(context, DATABASE_NAME, null, DATABASE_VERSION);
++	}
++
++	// Creating Tables
++	@Override
++	public void onCreate(SQLiteDatabase db) {
++		String CREATE_LOGIN_TABLE = "CREATE TABLE " + TABLE_LOGIN + "("
++				+ KEY_ID + " INTEGER PRIMARY KEY," 
++				+ KEY_NAME + " TEXT,"
++				+ KEY_EMAIL + " TEXT UNIQUE,"
++				+ KEY_UID + " TEXT,"
++				+ KEY_CREATED_AT + " TEXT" + ")";
++		db.execSQL(CREATE_LOGIN_TABLE);
++	}
++
++	// Upgrading database
++	@Override
++	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
++		// Drop older table if existed
++		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOGIN);
++
++		// Create tables again
++		onCreate(db);
++	}
++
++	/**
++	 * Storing user details in database
++	 * */
++	public void addUser(String name, String email, String uid, String created_at) {
++		SQLiteDatabase db = this.getWritableDatabase();
++
++		ContentValues values = new ContentValues();
++		values.put(KEY_NAME, name); // Name
++		values.put(KEY_EMAIL, email); // Email
++		values.put(KEY_UID, uid); // Email
++		values.put(KEY_CREATED_AT, created_at); // Created At
++
++		// Inserting Row
++		db.insert(TABLE_LOGIN, null, values);
++		db.close(); // Closing database connection
++	}
++	
++	/**
++	 * Getting user data from database
++	 * */
++	public HashMap<String, String> getUserDetails(){
++		HashMap<String,String> user = new HashMap<String,String>();
++		String selectQuery = "SELECT  * FROM " + TABLE_LOGIN;
++		 
++        SQLiteDatabase db = this.getReadableDatabase();
++        Cursor cursor = db.rawQuery(selectQuery, null);
++        // Move to first row
++        cursor.moveToFirst();
++        if(cursor.getCount() > 0){
++        	user.put("name", cursor.getString(1));
++        	user.put("email", cursor.getString(2));
++        	user.put("uid", cursor.getString(3));
++        	user.put("created_at", cursor.getString(4));
++        }
++        cursor.close();
++        db.close();
++		// return user
++		return user;
++	}
++
++	/**
++	 * Getting user login status
++	 * return true if rows are there in table
++	 * */
++	public int getRowCount() {
++		String countQuery = "SELECT  * FROM " + TABLE_LOGIN;
++		SQLiteDatabase db = this.getReadableDatabase();
++		Cursor cursor = db.rawQuery(countQuery, null);
++		int rowCount = cursor.getCount();
++		db.close();
++		cursor.close();
++		
++		// return row count
++		return rowCount;
++	}
++	
++	/**
++	 * Re crate database
++	 * Delete all tables and create them again
++	 * */
++	public void resetTables(){
++		SQLiteDatabase db = this.getWritableDatabase();
++		// Delete All Rows
++		db.delete(TABLE_LOGIN, null, null);
++		db.close();
++	}
++
++}
+diff --git a/src/com/robodex/request/JSONParser.java b/src/com/robodex/request/JSONParser.java
+new file mode 100644
+index 0000000..b1835d0
+--- /dev/null
++++ b/src/com/robodex/request/JSONParser.java
+@@ -0,0 +1,89 @@
++//todo merage this to jake code
++
++package com.robodex.request;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++import java.io.UnsupportedEncodingException;
++import java.util.List;
++
++import org.apache.http.HttpEntity;
++import org.apache.http.HttpResponse;
++import org.apache.http.NameValuePair;
++import org.apache.http.client.ClientProtocolException;
++import org.apache.http.client.entity.UrlEncodedFormEntity;
++import org.apache.http.client.methods.HttpPost;
++import org.apache.http.impl.client.DefaultHttpClient;
++import org.json.JSONException;
++import org.json.JSONObject;
++
++import android.os.StrictMode;
++import android.util.Log;
++
++public class JSONParser {
++
++	static InputStream is = null;
++	static JSONObject jObj = null;
++	static String json = "";
++
++	// constructor
++	public JSONParser() {
++
++	}
++	
++	 public void onCreate() {
++	    	
++	    	StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
++	    }
++
++
++	public JSONObject getJSONFromUrl(String url, List<NameValuePair> params) {
++
++		// Making HTTP request
++		try {
++			// defaultHttpClient
++			DefaultHttpClient httpClient = new DefaultHttpClient();
++			HttpPost httpPost = new HttpPost(url);
++			httpPost.setEntity(new UrlEncodedFormEntity(params));
++
++			HttpResponse httpResponse = httpClient.execute(httpPost);
++			HttpEntity httpEntity = httpResponse.getEntity();
++			is = httpEntity.getContent();
++
++		} catch (UnsupportedEncodingException e) {
++			e.printStackTrace();
++		} catch (ClientProtocolException e) {
++			e.printStackTrace();
++		} catch (IOException e) {
++			e.printStackTrace();
++		}
++
++		try {
++			BufferedReader reader = new BufferedReader(new InputStreamReader(
++					is, "iso-8859-1"), 8);
++			StringBuilder sb = new StringBuilder();
++			String line = null;
++			while ((line = reader.readLine()) != null) {
++				sb.append(line + "\n");
++			}
++			is.close();
++			json = sb.toString();
++			Log.e("JSON", json);
++		} catch (Exception e) {
++			Log.e("Buffer Error", "Error converting result " + e.toString());
++		}
++
++		// try parse the string to a JSON object
++		try {
++			jObj = new JSONObject(json);			
++		} catch (JSONException e) {
++			Log.e("JSON Parser", "Error parsing data " + e.toString());
++		}
++
++		// return JSON String
++		return jObj;
++
++	}
++}
+diff --git a/src/com/robodex/request/UserLogin.java b/src/com/robodex/request/UserLogin.java
+new file mode 100644
+index 0000000..9cf92b2
+--- /dev/null
++++ b/src/com/robodex/request/UserLogin.java
+@@ -0,0 +1,58 @@
++package com.robodex.request;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import org.apache.http.NameValuePair;
++import org.apache.http.message.BasicNameValuePair;
++import org.json.JSONObject;
++
++
++import com.robodex.data.DatabaseHandler;
++
++import android.content.Context;
++
++public class UserLogin {
++	
++	private JSONParser jsonParser;
++	
++	private static String loginURL = "http://shazam.avatarsyn.com/andtest/index.php";
++	
++	private static String login_tag = "login";
++	
++	// constructor
++	public UserLogin(){
++		jsonParser = new JSONParser();
++	}
++
++	public JSONObject loginUser(String user, String password){
++		// Building Parameters
++		List<NameValuePair> params = new ArrayList<NameValuePair>();
++		params.add(new BasicNameValuePair("tag", login_tag));
++		params.add(new BasicNameValuePair("user", user));
++		params.add(new BasicNameValuePair("password", password));
++		JSONObject json = jsonParser.getJSONFromUrl(loginURL, params);
++		// return json
++		// Log.e("JSON", json.toString());
++		return json;
++	}
++	
++
++	public boolean isUserLoggedIn(Context context){
++		DatabaseHandler db = new DatabaseHandler(context);
++		int count = db.getRowCount();
++		if(count > 0){
++			// user logged in
++			return true;
++		}
++		return false;
++	}
++	
++
++	public boolean logoutUser(Context context){
++		DatabaseHandler db = new DatabaseHandler(context);
++		db.resetTables();
++		return true;
++	}
++	
++}
+-- 
+1.8.0.msysgit.0
+
+
+From 7e2cd156f6bde0949226c25958a296a8275bbf9f Mon Sep 17 00:00:00 2001
+From: Shazad <shazadsb@gmail.com>
+Date: Wed, 21 Nov 2012 16:22:34 -0500
+Subject: [PATCH 2/5] Stupit Login
+
+---
+ src/com/robodex/app/LoginActivity.java      | 95 +++++++++++++++++++++++------
+ src/com/robodex/request/ServerContract.java |  6 +-
+ 2 files changed, 79 insertions(+), 22 deletions(-)
+
+diff --git a/src/com/robodex/app/LoginActivity.java b/src/com/robodex/app/LoginActivity.java
+index 682369d..cb3d430 100644
+--- a/src/com/robodex/app/LoginActivity.java
++++ b/src/com/robodex/app/LoginActivity.java
+@@ -1,30 +1,32 @@
+ package com.robodex.app;
+ 
+-import java.util.HashMap;
+-
+ import org.json.JSONException;
+-import org.json.JSONObject;
+ 
+-import android.app.Activity;
+ import android.content.Intent;
++import android.database.Cursor;
+ import android.os.Bundle;
++import android.support.v4.app.LoaderManager;
++import android.support.v4.content.CursorLoader;
++import android.support.v4.content.Loader;
+ import android.util.Log;
+ import android.view.View;
+ import android.widget.Button;
+ import android.widget.EditText;
+ import android.widget.TextView;
+ 
+-
++import com.actionbarsherlock.app.SherlockActivity;
+ import com.robodex.R;
+-import com.robodex.Robodex;
++import com.robodex.data.DatabaseContract;
++import com.robodex.request.Login;
++import com.robodex.request.ServerContract.ResponseCode;
++
+ 
+-//import com.example.oats.library.DatabaseHandler;
+-//import com.example.oats.library.UserLogin;
+ 
+-import com.robodex.data.DatabaseHandler;
+-import com.robodex.request.UserLogin;
++public class LoginActivity extends SherlockActivity implements
++LoaderManager.LoaderCallbacks<Cursor> {
++	
++    private static final int LOGIN_LOADER = 1;
+ 
+-public class LoginActivity extends Activity {
+ 	Button   btnLogin;
+ 	Button   btnLinkToRegister;
+ 	EditText inputUser;
+@@ -40,6 +42,11 @@ public class LoginActivity extends Activity {
+ 	private static String KEY_user      = "user";
+ 	private static String KEY_CREATED_AT = "created_at";
+ 
++	
++	private Login userLogin;
++		
++		
++	
+ 	@Override
+ 	public void onCreate(Bundle savedInstanceState) {
+ 		super.onCreate(savedInstanceState);
+@@ -56,27 +63,34 @@ public class LoginActivity extends Activity {
+ 			public void onClick(View view) {
+ 				String user    = inputUser.getText().toString();
+ 				String password = inputPassword.getText().toString();
+-				UserLogin userLogin = new UserLogin();
+-				JSONObject json = userLogin.loginUser(user, password);				
++				
++				loginErrorMsg.setText("Work????");
++				userLogin = new Login(user, password);
++				userLogin.execute();
++				//UserLogin userLogin = new UserLogin();
++				//JSONObject json = userLogin.loginUser(user, password);				
+ 				Log.d("Button", "Login");
++			
+ 				
+ 				// check for login response
+-				try {
++				/*try {
+ 					if (json.getString(KEY_SUCCESS) != null) {
+ 						loginErrorMsg.setText("");
+ 						String res = json.getString(KEY_SUCCESS); 
+ 						if(Integer.parseInt(res) == 1){
+ 							
++							/*
+ 							DatabaseHandler db   = new DatabaseHandler(getApplicationContext());
+ 							JSONObject json_user = json.getJSONObject("user");
+ 														
+ 							userLogin.logoutUser(getApplicationContext());
+ 							db.addUser(json_user.getString(KEY_NAME), json_user.getString(KEY_user), json.getString(KEY_UID), json_user.getString(KEY_CREATED_AT));						
++							
++							
++							Intent main = new Intent(getApplicationContext(), MainActivity.class);
+ 														
+-							Intent dashboard = new Intent(getApplicationContext(), MainActivity.class);
+-														
+-							dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-							startActivity(dashboard);
++							main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++							startActivity(main);
+ 							
+ 							// Close Login Screen
+ 							finish();
+@@ -87,9 +101,52 @@ public class LoginActivity extends Activity {
+ 					}
+ 				} catch (JSONException e) {
+ 					e.printStackTrace();
+-				}
++				}*/
+ 			}
+ 		});
+ 
+ 	}
++
++	@Override
++	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
++		CursorLoader cursorLoader = null;
++		if (arg0 == LOGIN_LOADER){
++			String[] projection = {DatabaseContract.Login.COL_AUTH_KEY};
++			
++
++			cursorLoader = new CursorLoader(this,
++            DatabaseContract.Login.CONTENT_URI, projection, null, null, null);
++
++		}
++		return cursorLoader;
++	}
++
++	@Override
++	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
++		// TODO Auto-generated method stub
++		
++		loginErrorMsg.setText("Login....");
++		if(userLogin.getResponseCode() == ResponseCode.OK){
++			
++			Intent main = new Intent(getApplicationContext(), MainActivity.class);
++			
++			main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++			startActivity(main);
++			
++			
++			
++			// Close Login Screen
++			finish();
++			
++		}else{
++			loginErrorMsg.setText("Please check your username/password");
++		}
++		
++	}
++
++	@Override
++	public void onLoaderReset(Loader<Cursor> arg0) {
++		// TODO Auto-generated method stub
++		
++	}
+ }
+diff --git a/src/com/robodex/request/ServerContract.java b/src/com/robodex/request/ServerContract.java
+index de93bbd..f82d3b0 100644
+--- a/src/com/robodex/request/ServerContract.java
++++ b/src/com/robodex/request/ServerContract.java
+@@ -4,7 +4,7 @@ package com.robodex.request;
+  * Specifies the data that the server and app understand
+  * so they can communicate it between one another.
+  */
+-final class ServerContract {
++public final class ServerContract {
+ 
+ 	/**
+ 	 * The types of requests the app can make
+@@ -186,8 +186,8 @@ final class ServerContract {
+ 	/**
+ 	 * Response codes given by the server
+ 	 */
+-	static final class ResponseCode {
+-		static final int OK								= 0;
++	public static final class ResponseCode {
++		public static final int OK								= 0;
+ 
+ 		// Business logic errors
+ 		static final int INVALID_USERNAME				= 10;
+-- 
+1.8.0.msysgit.0
+
+
+From 26e4340207321fc5990d732b29dc8836fef50fca Mon Sep 17 00:00:00 2001
+From: Shazad <shazadsb@gmail.com>
+Date: Wed, 21 Nov 2012 18:31:47 -0500
+Subject: [PATCH 3/5] Login
+
+---
+ src/com/robodex/app/LoginActivity.java | 24 +++++++++++++++++-------
+ src/com/robodex/request/Login.java     | 18 ++++++++++++------
+ 2 files changed, 29 insertions(+), 13 deletions(-)
+
+diff --git a/src/com/robodex/app/LoginActivity.java b/src/com/robodex/app/LoginActivity.java
+index cb3d430..32dda03 100644
+--- a/src/com/robodex/app/LoginActivity.java
++++ b/src/com/robodex/app/LoginActivity.java
+@@ -1,7 +1,5 @@
+ package com.robodex.app;
+ 
+-import org.json.JSONException;
+-
+ import android.content.Intent;
+ import android.database.Cursor;
+ import android.os.Bundle;
+@@ -14,7 +12,7 @@ import android.widget.Button;
+ import android.widget.EditText;
+ import android.widget.TextView;
+ 
+-import com.actionbarsherlock.app.SherlockActivity;
++import com.actionbarsherlock.app.SherlockFragmentActivity;
+ import com.robodex.R;
+ import com.robodex.data.DatabaseContract;
+ import com.robodex.request.Login;
+@@ -22,7 +20,7 @@ import com.robodex.request.ServerContract.ResponseCode;
+ 
+ 
+ 
+-public class LoginActivity extends SherlockActivity implements
++public class LoginActivity extends SherlockFragmentActivity implements
+ LoaderManager.LoaderCallbacks<Cursor> {
+ 	
+     private static final int LOGIN_LOADER = 1;
+@@ -32,6 +30,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 	EditText inputUser;
+ 	EditText inputPassword;
+ 	TextView loginErrorMsg;
++	
++	
+ 
+ 	// JSON Response node names
+ 	private static String KEY_SUCCESS    = "success";
+@@ -51,11 +51,15 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 	public void onCreate(Bundle savedInstanceState) {
+ 		super.onCreate(savedInstanceState);
+ 		setContentView(R.layout.login);
+-
++		
++		userLogin = new Login();
++		
+ 		inputUser    = (EditText) findViewById(R.id.loginUser);
+ 		inputPassword = (EditText) findViewById(R.id.loginPassword);
+ 		loginErrorMsg = (TextView) findViewById(R.id.login_error);
+ 		btnLogin      = (Button)   findViewById(R.id.btnLogin);
++		
++		
+ 
+ 		// Login button Click Event
+ 		btnLogin.setOnClickListener(new View.OnClickListener() {
+@@ -64,8 +68,14 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 				String user    = inputUser.getText().toString();
+ 				String password = inputPassword.getText().toString();
+ 				
++				getSupportLoaderManager().initLoader(LOGIN_LOADER, null,  LoginActivity.this);
++				
+ 				loginErrorMsg.setText("Work????");
+-				userLogin = new Login(user, password);
++				
++				;
++				userLogin.setUsername(user);
++				userLogin.setPassword(password);
++				
+ 				userLogin.execute();
+ 				//UserLogin userLogin = new UserLogin();
+ 				//JSONObject json = userLogin.loginUser(user, password);				
+@@ -122,7 +132,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 	}
+ 
+ 	@Override
+-	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
++	 public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
+ 		// TODO Auto-generated method stub
+ 		
+ 		loginErrorMsg.setText("Login....");
+diff --git a/src/com/robodex/request/Login.java b/src/com/robodex/request/Login.java
+index 23dc768..124c89d 100644
+--- a/src/com/robodex/request/Login.java
++++ b/src/com/robodex/request/Login.java
+@@ -10,13 +10,19 @@ import com.robodex.request.ServerContract.RequestField;
+ 
+ public final class Login extends BaseRequest {
+ 
+-	private final String mUsername;
+-	private final String mPassword;
++	private String mUsername;
++	private String mPassword;
++
++	
++		
++		public void setPassword(String password){
++			mPassword = password;
++		}
++		public void setUsername(String username){
++			mUsername = username;
++		}
++		
+ 
+-	public Login(String username, String password) {
+-		mUsername = username;
+-		mPassword = password;
+-	}
+ 
+ 	@Override
+ 	protected void prepareRequest() {
+-- 
+1.8.0.msysgit.0
+
+
+From 0fcddec95181d7c811b427d592693c970ac44832 Mon Sep 17 00:00:00 2001
+From: Shazad <shazadsb@gmail.com>
+Date: Sat, 24 Nov 2012 20:57:25 -0500
+Subject: [PATCH 4/5] bad login
+
+---
+ AndroidManifest.xml                    |  2 +-
+ src/com/robodex/app/LoginActivity.java | 14 ++++++++++----
+ src/com/robodex/app/MainActivity.java  |  1 +
+ 3 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index f672bfc..ae19cb5 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -69,7 +69,7 @@
+             android:label="Login Account" 
+             android:name=".app.LoginActivity">
+            android:parentActivityName=".app.MainActivity"
+-           
++            android:theme="@android:style/Theme.Black.NoTitleBar" >
+             <meta-data
+                 android:name="android.support.PARENT_ACTIVITY"
+                 android:value=".app.MainActivity" />
+diff --git a/src/com/robodex/app/LoginActivity.java b/src/com/robodex/app/LoginActivity.java
+index 32dda03..3a4f2cf 100644
+--- a/src/com/robodex/app/LoginActivity.java
++++ b/src/com/robodex/app/LoginActivity.java
+@@ -15,6 +15,7 @@ import android.widget.TextView;
+ import com.actionbarsherlock.app.SherlockFragmentActivity;
+ import com.robodex.R;
+ import com.robodex.data.DatabaseContract;
++import com.robodex.data.DatabaseHandler;
+ import com.robodex.request.Login;
+ import com.robodex.request.ServerContract.ResponseCode;
+ 
+@@ -136,16 +137,21 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 		// TODO Auto-generated method stub
+ 		
+ 		loginErrorMsg.setText("Login....");
+-		if(userLogin.getResponseCode() == ResponseCode.OK){
++		if((userLogin.getResponseCode() != ResponseCode.OK)){
++			
++			
++			//del here
++			DatabaseHandler db   = new DatabaseHandler(getApplicationContext());
++										
++			db.addUser("test", "test", "12345","fgf");						
++			// to 
++			
+ 			
+ 			Intent main = new Intent(getApplicationContext(), MainActivity.class);
+ 			
+ 			main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+ 			startActivity(main);
+ 			
+-			
+-			
+-			// Close Login Screen
+ 			finish();
+ 			
+ 		}else{
+diff --git a/src/com/robodex/app/MainActivity.java b/src/com/robodex/app/MainActivity.java
+index 37efbb6..0f9a542 100644
+--- a/src/com/robodex/app/MainActivity.java
++++ b/src/com/robodex/app/MainActivity.java
+@@ -34,6 +34,7 @@ ItemListFragment.Callbacks {
+         // Check login status in android database
+         UserLogin userLogin = new UserLogin();
+         if(userLogin.isUserLoggedIn(getApplicationContext())){
++
+         	setContentView(R.layout.activity_main);
+ 
+         	if (findViewById(R.id.fragment_container) != null) {
+-- 
+1.8.0.msysgit.0
+
+
+From 70fe137b454455459c1647df55353c413e6f4572 Mon Sep 17 00:00:00 2001
+From: Shazad <shazadsb@gmail.com>
+Date: Wed, 28 Nov 2012 14:20:46 -0500
+Subject: [PATCH 5/5] login clean up
+
+---
+ AndroidManifest.xml                    | 15 ++++++---------
+ src/com/robodex/app/LoginActivity.java | 13 ++++++-------
+ src/com/robodex/app/MainActivity.java  | 12 +-----------
+ 3 files changed, 13 insertions(+), 27 deletions(-)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index ae19cb5..30c2881 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -30,11 +30,7 @@
+         <activity
+             android:name=".app.MainActivity"
+             android:label="@string/title_activity_main" >
+-            <intent-filter>
+-                <action android:name="android.intent.action.MAIN" />
+-
+-                <category android:name="android.intent.category.LAUNCHER" />
+-            </intent-filter>
++ 
+         </activity>
+         <activity
+             android:name=".app.ItemListActivity"
+@@ -68,11 +64,12 @@
+         <activity
+             android:label="Login Account" 
+             android:name=".app.LoginActivity">
+-           android:parentActivityName=".app.MainActivity"
+             android:theme="@android:style/Theme.Black.NoTitleBar" >
+-            <meta-data
+-                android:name="android.support.PARENT_ACTIVITY"
+-                android:value=".app.MainActivity" />
++                   <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
+         </activity>
+             
+         <provider
+diff --git a/src/com/robodex/app/LoginActivity.java b/src/com/robodex/app/LoginActivity.java
+index 3a4f2cf..68dd50c 100644
+--- a/src/com/robodex/app/LoginActivity.java
++++ b/src/com/robodex/app/LoginActivity.java
+@@ -15,7 +15,6 @@ import android.widget.TextView;
+ import com.actionbarsherlock.app.SherlockFragmentActivity;
+ import com.robodex.R;
+ import com.robodex.data.DatabaseContract;
+-import com.robodex.data.DatabaseHandler;
+ import com.robodex.request.Login;
+ import com.robodex.request.ServerContract.ResponseCode;
+ 
+@@ -71,7 +70,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 				
+ 				getSupportLoaderManager().initLoader(LOGIN_LOADER, null,  LoginActivity.this);
+ 				
+-				loginErrorMsg.setText("Work????");
++				loginErrorMsg.setText("Loading...");
+ 				
+ 				;
+ 				userLogin.setUsername(user);
+@@ -140,11 +139,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
+ 		if((userLogin.getResponseCode() != ResponseCode.OK)){
+ 			
+ 			
+-			//del here
+-			DatabaseHandler db   = new DatabaseHandler(getApplicationContext());
+-										
+-			db.addUser("test", "test", "12345","fgf");						
+-			// to 
++//			//del here
++//			DatabaseHandler db   = new DatabaseHandler(getApplicationContext());
++//										
++//			db.addUser("test", "test", "12345","fgf");						
++//			// to 
+ 			
+ 			
+ 			Intent main = new Intent(getApplicationContext(), MainActivity.class);
+diff --git a/src/com/robodex/app/MainActivity.java b/src/com/robodex/app/MainActivity.java
+index 0f9a542..b649ee0 100644
+--- a/src/com/robodex/app/MainActivity.java
++++ b/src/com/robodex/app/MainActivity.java
+@@ -8,7 +8,6 @@ import android.widget.Toast;
+ 
+ import com.robodex.R;
+ import com.robodex.Robodex;
+-import com.robodex.request.UserLogin;
+ 
+ public class MainActivity extends BaseActivity implements MainListFragment.Callbacks,
+ ItemListFragment.Callbacks {
+@@ -31,9 +30,6 @@ ItemListFragment.Callbacks {
+       
+         setContentView(R.layout.activity_main);
+ 
+-        // Check login status in android database
+-        UserLogin userLogin = new UserLogin();
+-        if(userLogin.isUserLoggedIn(getApplicationContext())){
+ 
+         	setContentView(R.layout.activity_main);
+ 
+@@ -43,13 +39,7 @@ ItemListFragment.Callbacks {
+                     .findFragmentById(R.id.list))
+                     .setActivateOnItemClick(true);
+         	}
+-        }else{
+-        	// user is not logged in show login screen
+-        	Intent login = new Intent(getApplicationContext(), LoginActivity.class);
+-        	login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-        	startActivity(login);
+-        	finish();
+-        }
++
+     }
+ 
+     @Override
+-- 
+1.8.0.msysgit.0
+
