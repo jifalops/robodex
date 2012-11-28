@@ -10,11 +10,14 @@ import com.robodex.request.ServerContract.RequestField;
 
 public final class Login extends BaseRequest {
 
-	private final String mUsername;
-	private final String mPassword;
+	private String mUsername;
+	private String mPassword;
 
-	public Login(String username, String password) {
+	public void setUsername(String username) {
 		mUsername = username;
+	}
+
+	public void setPassword(String password) {
 		mPassword = password;
 	}
 

@@ -1,15 +1,15 @@
 package com.robodex.app;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
+import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.robodex.R;
 import com.robodex.Robodex;
+import com.robodex.request.SearchAll;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
     @Override
@@ -20,6 +20,20 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
         //Create the search view
         SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
         searchView.setQueryHint(getString(R.string.search_hint_default));
+        searchView.setOnQueryTextListener(new OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				SearchAll search = new SearchAll();
+				search.setQueryString(query);
+				search.execute();
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				return false;
+			}
+		});
 
         (menu.findItem(R.id.menu_search))
         .setActionView(searchView)

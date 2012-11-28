@@ -37,6 +37,7 @@ public class ItemListFragment extends SherlockListFragment implements
     private static final int SPECIALTY_LIST_LOADER = 1;
     private static final int ORGANIZATION_LIST_LOADER = 2;
     private static final int LINK_LIST_LOADER = 3;
+    private static final int SEARCH_RESULTS_LIST_LOADER = 4;
 
     private SimpleCursorAdapter mCursorAdapter;
 
@@ -233,7 +234,9 @@ public class ItemListFragment extends SherlockListFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mCursorAdapter.swapCursor(cursor);
+
+    	mCursorAdapter.swapCursor(cursor);
+
     }
 
     @Override

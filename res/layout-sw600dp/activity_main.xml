@@ -4,35 +4,34 @@
    	android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-	<LinearLayout 
+	<LinearLayout
 	    android:orientation="horizontal"
 	    android:layout_width="match_parent"
 	    android:layout_height="0dp"
 	    android:layout_weight="1"
 	    android:layout_marginLeft="16dp"
 	    android:layout_marginRight="16dp"
-	    android:divider="?android:attr/dividerHorizontal"
 	    android:showDividers="middle"
 	    tools:context=".app.MainActivity">
-	
+
 	    <fragment android:name="com.robodex.app.MainListFragment"
 	        android:id="@+id/list"
 	        android:layout_width="0dp"
 	        android:layout_height="match_parent"
 	        android:layout_weight="1" />
-	
+
 	    <FrameLayout android:id="@+id/fragment_container"
 	        android:layout_width="0dp"
 	        android:layout_height="match_parent"
 	        android:layout_weight="3" />
-	
+
 	</LinearLayout>
-	<com.google.ads.AdView 
+	<com.google.ads.AdView
 		    android:id="@+id/adView"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        ads:adUnitId="a1506e906138301"
 	        ads:adSize="BANNER"
-	        ads:testDevices="TEST_EMULATOR, 4AB4327DD66436AAF2B917739E24B866, 1C61D0699B76FB79113B685B19440E25"
+	        ads:testDevices="TEST_EMULATOR"
 	        ads:loadAdOnCreate="true" />
 </LinearLayout>
