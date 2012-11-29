@@ -33,6 +33,6 @@
         <item>@string/recent</item>
     </string-array>
 
-    <string name="search_hint_default">Search</string>
-
+    <string name="search_hint_default">Search All</string>
+    <string name="content_description_expand_collapse">Expand/Collapse</string>
 </resources>
