@@ -18,7 +18,7 @@
 
     <application
         android:name=".Robodex"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/launcher_icon"
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock" >
         <uses-library android:name="com.google.android.maps" />

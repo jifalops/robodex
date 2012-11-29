@@ -36,7 +36,7 @@ public class MyMapActivity extends MapActivity {
         mMap.getController().setZoom(DEFAULT_ZOOM);
 
         mOverlays = mMap.getOverlays();
-        mMarker = this.getResources().getDrawable(R.drawable.androidmarker);
+        mMarker = this.getResources().getDrawable(R.drawable.marker_self);
         mItemizedOverlay = new MyItemizedOverlay(mMarker, this);
 
         addLocations();
