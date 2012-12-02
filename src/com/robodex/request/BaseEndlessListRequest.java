@@ -16,7 +16,7 @@ import com.robodex.request.ServerContract.ResponseCode;
 
 public abstract class BaseEndlessListRequest extends BaseRequest {
 	public static final String LOG_TAG = BaseEndlessListRequest.class.getSimpleName();
-	public static final int DEFAULT_START_POSITION = 1;
+	public static final int DEFAULT_START_POSITION = 0;
 
 	private final AtomicInteger mStartPosition;
 

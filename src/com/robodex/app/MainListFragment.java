@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.robodex.R;
 
 public class MainListFragment extends SherlockListFragment {
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
@@ -17,9 +17,7 @@ public class MainListFragment extends SherlockListFragment {
     }
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
-        @Override
-        public void onMainItemSelected(int position) {
-        }
+        @Override public void onMainItemSelected(int position) {}
     };
 
     private Callbacks mCallbacks = sDummyCallbacks;
@@ -30,7 +28,7 @@ public class MainListFragment extends SherlockListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,
-                getResources().getStringArray(R.array.main_items)));
+               new String[] {"Specialties", "Organizations", "Links", "Near Me"}));
     }
 
     @Override

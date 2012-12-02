@@ -1,9 +1,0 @@
-<!-- Based on android.R.layout.simple_list_item_1 -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/text"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="6dip"
-    android:textAppearance="?android:attr/textAppearanceLarge" />

@@ -3,7 +3,7 @@
     <string name="app_name">Robodex</string>
 
     <string name="title_activity_main">@string/app_name</string>
-    <string name="title_activity_category">@string/app_name</string>
+    <string name="title_activity_list">@string/app_name</string>
     <string name="title_activity_detail">@string/app_name</string>
     <string name="title_activity_map">@string/app_name</string>
 
@@ -16,23 +16,24 @@
     <string name="specialties">Specialties</string>
     <string name="organization">Organization</string>
     <string name="organizations">Organizations</string>
+    <string name="location">Location</string>
+    <string name="locations">Locations</string>
     <string name="person">Person</string>
     <string name="people">People</string>
     <string name="near_me">Near Me</string>
+    <string name="map_items">Map Items</string>
     <string name="links">Links</string>
     <string name="recent">Recent</string>
     <string name="pending_removals">Pending Removals</string>
     <string name="manage_roles">Manage Roles</string>
+    <string name="search">Search</string>
+    <string name="map">Map</string>
+    <string name="about">About</string>
 
-	<!-- Correspond to 'MAIN_ITEM_ID' (possibly renamed to 'CATEGORY_ID') -->
-    <string-array name="main_items">
-        <item>@string/specialties</item>
-        <item>@string/near_me</item>
-        <item>@string/organizations</item>
-        <item>@string/links</item>
-        <item>@string/recent</item>
-    </string-array>
-
+    <string name="search_results">Search Results</string>
     <string name="search_hint_default">Search All</string>
+
     <string name="content_description_expand_collapse">Expand/Collapse</string>
+
+    <string name="error_invalid_list_type">Nothing to display</string>
 </resources>

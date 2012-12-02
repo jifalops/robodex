@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
-            android:paddingLeft="6dip"
+            android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <ImageView
             android:id="@+id/organizationsExpandCollapse"
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
-            android:paddingLeft="6dip"
+            android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/address"

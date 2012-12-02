@@ -12,6 +12,7 @@ import com.robodex.Robodex;
 import com.robodex.request.SearchAll;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);

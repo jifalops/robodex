@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -58,8 +59,6 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		inputPassword = (EditText) findViewById(R.id.loginPassword);
 		loginErrorMsg = (TextView) findViewById(R.id.login_error);
 		btnLogin      = (Button)   findViewById(R.id.btnLogin);
-
-
 
 		// Login button Click Event
 		btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -146,7 +145,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 //			// to
 
 
-			Intent main = new Intent(getApplicationContext(), MainActivity.class);
+			Intent main = new Intent(this, MainActivity.class);
 
 			main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(main);

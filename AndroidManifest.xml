@@ -22,40 +22,46 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock" >
         <uses-library android:name="com.google.android.maps" />
-
         <activity
             android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|orientation|uiMode|screenSize|smallestScreenSize" >
         </activity>
         <activity
-            android:name=".app.MainActivity"
-            android:label="@string/title_activity_main" >
-
+            android:name="com.robodex.app.MainActivity"
+            android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity
-            android:name=".app.ItemListActivity"
-            android:label="@string/title_activity_category"
+            android:name="com.robodex.app.MainListActivity"
+            android:label="@string/title_activity_main"
             android:parentActivityName=".app.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".app.MainActivity" />
         </activity>
         <activity
-            android:name=".app.DetailActivity"
-            android:label="@string/title_activity_detail"
-            android:parentActivityName=".app.CategoryListActivity" >
+            android:name=".app.ItemListActivity"
+            android:label="@string/title_activity_list"
+            android:parentActivityName=".app.MainListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".app.CategoryListActivity" />
+                android:value=".app.MainListActivity" />
+        </activity>
+        <activity
+            android:name=".app.DetailActivity"
+            android:label="@string/title_activity_detail"
+            android:parentActivityName=".app.ItemListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".app.ItemListActivity" />
         </activity>
         <activity
             android:name=".app.MyMapActivity"
             android:label="@string/title_activity_map"
-            android:parentActivityName=".app.MainActivity"
+            android:parentActivityName=".app.MainListActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".app.MainActivity" />
+                android:value=".app.MainListActivity" />
         </activity>
 
 
@@ -64,10 +70,9 @@
         <activity
             android:label="Login Account"
             android:name=".app.LoginActivity"
-            android:theme="@android:style/Theme.Black.NoTitleBar" >
-                   <intent-filter>
+            android:theme="@android:style/Theme.NoTitleBar" >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

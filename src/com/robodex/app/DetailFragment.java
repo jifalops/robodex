@@ -10,32 +10,27 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.robodex.R;
 
 public class DetailFragment extends SherlockFragment {
-    public static final String ARG_CATEGORY_ITEM_ID = "category_item_id";
-    public static final String ARG_MAIN_ITEM_ID = "main_item_id";
+    static final String ARG_DETAIL_TYPE = "type_of_details";
+    static final String ARG_ITEM_ID 	= "item_id";
 
-    private String mMainItem;
-    private String mCategoryItem;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments().containsKey(ARG_MAIN_ITEM_ID)) {
-            mMainItem = getArguments().getString(ARG_MAIN_ITEM_ID);
-        }
-
-        if (getArguments().containsKey(ARG_CATEGORY_ITEM_ID)) {
-            mCategoryItem = getArguments().getString(ARG_CATEGORY_ITEM_ID);
-        }
-    }
+    static final int DETAIL_TYPE_PERSON   = 1;
+    static final int DETAIL_TYPE_LOCATION = 2;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        if (mMainItem != null && mCategoryItem != null) {
-            ((TextView) rootView.findViewById(R.id.detail)).setText(mMainItem + ", " + mCategoryItem);
+    	if (container == null) return null;
+
+    	int type = getArguments().getInt(ARG_DETAIL_TYPE);
+    	int id = getArguments().getInt(ARG_ITEM_ID);
+
+        switch (type) {
+        case DETAIL_TYPE_LOCATION:
+        	return inflater.inflate(R.layout.detail_location, container, false);
+        case DETAIL_TYPE_PERSON:
+        	return inflater.inflate(R.layout.detail_person, container, false);
+    	default:
+    		return null;
         }
-        return rootView;
     }
 }

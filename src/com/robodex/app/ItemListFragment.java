@@ -1,147 +1,122 @@
 package com.robodex.app;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.robodex.R;
 import com.robodex.Robodex;
 import com.robodex.data.DatabaseContract;
-import com.robodex.data.DummyData;
-import com.robodex.data.DummyData.DummyLink;
-import com.robodex.data.DummyData.DummyLocation;
+import com.robodex.request.BaseRequest;
 import com.robodex.request.ListLinks;
+import com.robodex.request.ListLocationsByOrganization;
 import com.robodex.request.ListOrganizations;
+import com.robodex.request.ListPeopleBySpecialty;
 import com.robodex.request.ListSpecialties;
 public class ItemListFragment extends SherlockListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String LOG_TAG = ItemListFragment.class.getSimpleName();
 
-    private static final String STATE_ACTIVATED_POSITION = "activated_position";
-    public static final String ARG_MAIN_ITEM_ID = "main_item_id";
-    public static final String ARG_CATEGORY_ITEM_ID = "category_item_id";
-    private static final String DEFAULT_MAIN_ITEM_ID = "0";
-
-    private static final int SPECIALTY_LIST_LOADER = 1;
-    private static final int ORGANIZATION_LIST_LOADER = 2;
-    private static final int LINK_LIST_LOADER = 3;
-    private static final int SEARCH_RESULTS_LIST_LOADER = 4;
-
-    private SimpleCursorAdapter mCursorAdapter;
-
-    public interface Callbacks {
-        public void onItemSelected(int position);
+	interface Callbacks {
+		void onInvalidListType();
+        void onItemSelected(int position);
     }
 
-    private static Callbacks sDummyCallbacks = new Callbacks() {
-        @Override
-        public void onItemSelected(int position) {
-        }
+	// Used temporarily during lifecycle methods
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override public void onInvalidListType() {}
+        @Override public void onItemSelected(int position) {}
     };
 
-    private Callbacks mCallbacks = sDummyCallbacks;
+    static final String ARG_LIST_TYPE 		= "type_of_list";
+    static final String ARG_ORGANIZATION_ID = "organization_id";	// to list locations
+    static final String ARG_SPECIALTY_ID 	= "specialty_id";		// to list people
+    static final String ARG_ORGANIZATION 	= "organization";    	// to set title
+    static final String ARG_SPECIALTY 		= "specialty";			// to set title
 
-    private String mMainItem;
+    static final int LIST_TYPE_SPECIALTIES 		   = 1;
+    static final int LIST_TYPE_ORGANIZATIONS 	   = 2;
+    static final int LIST_TYPE_LOCATIONS 		   = 3;
+    static final int LIST_TYPE_PEOPLE_BY_SPECIALTY = 4;
+    static final int LIST_TYPE_MAP 				   = 5;
+    static final int LIST_TYPE_LINKS 			   = 6;
+    static final int LIST_TYPE_SEARCH_ALL 		   = 7;
 
-    private int mActivatedPosition = ListView.INVALID_POSITION;
+    private static final String STATE_ACTIVATED_POSITION = "activated_item_position";
+
+    private int			  mListType;
+    private int 		  mActivatedPosition = ListView.INVALID_POSITION;
+    private Callbacks 	  mCallbacks 		= sDummyCallbacks;
+    private BaseRequest   mRequest;
+    private CursorAdapter mListAdapter;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments().containsKey(ARG_MAIN_ITEM_ID)) {
-            mMainItem = getArguments().getString(ARG_MAIN_ITEM_ID);
-        }
-        if (mMainItem == null || mMainItem.length() == 0) mMainItem = DEFAULT_MAIN_ITEM_ID;
 
-        int pos = Integer.valueOf(mMainItem);
-        String[] mainItems = getResources().getStringArray(R.array.main_items);
+        mListType = getArguments().getInt(ARG_LIST_TYPE);
 
-        getActivity().setTitle(mainItems[pos]);
+        switch (mListType) {
+    	case LIST_TYPE_LINKS:
+    		getActivity().setTitle(getString(R.string.links));
+    		mRequest     = new ListLinks();
+            mListAdapter = new LinkAdapter(getActivity());
+    		break;
+    	case LIST_TYPE_LOCATIONS:
+    		getActivity().setTitle(getArguments().getString(ARG_ORGANIZATION));
+    		mRequest     = new ListLocationsByOrganization(getArguments().getInt(ARG_ORGANIZATION_ID));
+    		mListAdapter = new LocationAdapter(getActivity());
+    		break;
+    	case LIST_TYPE_MAP:
+    		getActivity().setTitle(getString(R.string.map_items));
+    		mRequest     = null;
+    		mListAdapter = new MapAdapter(getActivity());
+    		break;
+    	case LIST_TYPE_ORGANIZATIONS:
+    		getActivity().setTitle(getString(R.string.organizations));
+    		mRequest     = new ListOrganizations();
+            mListAdapter = new BasicAdapter(getActivity(), DatabaseContract.ListOrganizations.COL_ORGANIZATION);
+    		break;
+    	case LIST_TYPE_PEOPLE_BY_SPECIALTY:
+    		getActivity().setTitle(getArguments().getString(ARG_SPECIALTY));
+    		mRequest     = new ListPeopleBySpecialty(getArguments().getInt(ARG_SPECIALTY_ID));
+    		mListAdapter = new PersonAdapter(getActivity());
+    		break;
+    	case LIST_TYPE_SEARCH_ALL:
+    		getActivity().setTitle(getString(R.string.search_results));
+    		mRequest   	 = null;
+    		mListAdapter = new SearchAdapter(getActivity());
+    		break;
+    	case LIST_TYPE_SPECIALTIES:
+    		getActivity().setTitle(getString(R.string.specialties));
+    		mRequest   	 = new ListSpecialties();
+            mListAdapter = new BasicAdapter(getActivity(), DatabaseContract.ListSpecialties.COL_SPECIALTY);
+    		break;
+		default:
+        	mCallbacks.onInvalidListType();
+        	return;
+    	}
 
-        String [] items = {};
-
-        if (mainItems[pos].equals(getResources().getString(R.string.specialties))) {
-//            items = DummyData.SPECIALTIES;
-
-
-        	getLoaderManager().initLoader(SPECIALTY_LIST_LOADER, null, this);
-
-        	String[] uiBindFrom = { DatabaseContract.ListSpecialties.COL_SPECIALTY};
-            int[] uiBindTo = { android.R.id.text1 };
-
-        	mCursorAdapter = new SimpleCursorAdapter(
-                    getActivity().getApplicationContext(), android.R.layout.simple_list_item_1,
-                    null, uiBindFrom, uiBindTo,
-                    CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-            ListSpecialties request = new ListSpecialties();
-            request.execute();
-
-            setListAdapter(mCursorAdapter);
-        }
-        else if (mainItems[pos].equals(getResources().getString(R.string.organizations))) {
-//          items = DummyData.AGENCIES;
-	      	getLoaderManager().initLoader(ORGANIZATION_LIST_LOADER, null, this);
-
-	      	String[] uiBindFrom = { DatabaseContract.ListOrganizations.COL_ORGANIZATION};
-	          int[] uiBindTo = { android.R.id.text1 };
-
-	      	mCursorAdapter = new SimpleCursorAdapter(
-	                  getActivity().getApplicationContext(), android.R.layout.simple_list_item_1,
-	                  null, uiBindFrom, uiBindTo,
-	                  CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-	      	ListOrganizations request = new ListOrganizations();
-	      	request.execute();
-
-	      	setListAdapter(mCursorAdapter);
-        }
-        else if (mainItems[pos].equals(getResources().getString(R.string.near_me))) {
-            ArrayList<String> list = new ArrayList<String>();
-            for (DummyLocation dl : DummyData.LOCATIONS) {
-                list.add(dl.toString());
-            }
-            items = list.toArray(new String[list.size()]);
-            setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items));
-        }
-        else if (mainItems[pos].equals(getResources().getString(R.string.links))) {
-//            ArrayList<String> list = new ArrayList<String>();
-//            for (DummyLink dl : DummyData.LINKS) {
-//                list.add(dl.toString());
-//            }
-//            items = list.toArray(new String[list.size()]);
-//
-//            setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items));
-        	getLoaderManager().initLoader(LINK_LIST_LOADER, null, this);
-
-	      	String[] uiBindFrom = { DatabaseContract.ListLinks.COL_TITLE};
-	          int[] uiBindTo = { android.R.id.text1 };
-
-	      	mCursorAdapter = new SimpleCursorAdapter(
-	                  getActivity().getApplicationContext(), android.R.layout.simple_list_item_1,
-	                  null, uiBindFrom, uiBindTo,
-	                  CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-	      	ListLinks request = new ListLinks();
-	      	request.execute();
-
-	      	setListAdapter(mCursorAdapter);
-        }
-
-
+        getLoaderManager().initLoader(mListType, null, this);
+        if (mRequest != null) mRequest.execute();
+        setListAdapter(mListAdapter);
     }
+
+
 
 
     @Override
@@ -200,49 +175,358 @@ public class ItemListFragment extends SherlockListFragment implements
     }
 
 
+
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     	CursorLoader cursorLoader = null;
+    	Uri contentUri = null;
+    	String[] projection = null;
 
     	switch (id) {
-    	case SPECIALTY_LIST_LOADER:
-    		String[] projection = { DatabaseContract.ListSpecialties.COL_ID, DatabaseContract.ListSpecialties.COL_SPECIALTY };
-            cursorLoader = new CursorLoader(getActivity(),
-            		DatabaseContract.ListSpecialties.CONTENT_URI, projection, null, null, null);
+    	case LIST_TYPE_SPECIALTIES:
+    		contentUri = DatabaseContract.ListSpecialties.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListSpecialties.COL_ID,
+				DatabaseContract.ListSpecialties.COL_SPECIALTY_ID,
+				DatabaseContract.ListSpecialties.COL_SPECIALTY
+			};
     		break;
-    	case ORGANIZATION_LIST_LOADER:
-    		String[] projection1 = { DatabaseContract.ListOrganizations.COL_ID, DatabaseContract.ListOrganizations.COL_ORGANIZATION };
-            cursorLoader = new CursorLoader(getActivity(),
-            		DatabaseContract.ListOrganizations.CONTENT_URI, projection1, null, null, null);
+    	case LIST_TYPE_ORGANIZATIONS:
+    		contentUri = DatabaseContract.ListOrganizations.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListOrganizations.COL_ID,
+				DatabaseContract.ListOrganizations.COL_ORGANIZATION_ID,
+				DatabaseContract.ListOrganizations.COL_ORGANIZATION
+			};
     		break;
-    	case LINK_LIST_LOADER:
-    		String[] projection2 = { DatabaseContract.ListLinks.COL_ID, DatabaseContract.ListLinks.COL_TITLE };
-            cursorLoader = new CursorLoader(getActivity(),
-            		DatabaseContract.ListLinks.CONTENT_URI, projection2, null, null, null);
+    	case LIST_TYPE_LINKS:
+    		contentUri = DatabaseContract.ListLinks.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListLinks.COL_ID,
+				DatabaseContract.ListLinks.COL_LINK_ID,
+				DatabaseContract.ListLinks.COL_TITLE,
+				DatabaseContract.ListLinks.COL_LINK
+			};
+    		break;
+    	case LIST_TYPE_LOCATIONS:
+    		contentUri = DatabaseContract.ListLocationsByOrganization.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListLocationsByOrganization.COL_ID,
+				DatabaseContract.ListLocationsByOrganization.COL_LOCATION_ID,
+				DatabaseContract.ListLocationsByOrganization.COL_PRIMARY,
+				DatabaseContract.ListLocationsByOrganization.COL_ADDRESS,
+				DatabaseContract.ListLocationsByOrganization.COL_CITY,
+				DatabaseContract.ListLocationsByOrganization.COL_STATE,
+				DatabaseContract.ListLocationsByOrganization.COL_ZIP
+			};
+    		break;
+    	case LIST_TYPE_MAP:
+    		contentUri = DatabaseContract.ListMap.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListMap.COL_ID,
+				DatabaseContract.ListMap.COL_LOCATION_ID,
+				DatabaseContract.ListMap.COL_PERSON_ID,
+				DatabaseContract.ListMap.COL_PRIMARY,
+				DatabaseContract.ListMap.COL_ORGANIZATION,
+				DatabaseContract.ListMap.COL_ADDRESS,
+				DatabaseContract.ListMap.COL_CITY,
+				DatabaseContract.ListMap.COL_STATE,
+				DatabaseContract.ListMap.COL_ZIP,
+				DatabaseContract.ListMap.COL_LATITUDE,
+				DatabaseContract.ListMap.COL_LONGITUDE,
+				DatabaseContract.ListMap.COL_FIRST_NAME,
+				DatabaseContract.ListMap.COL_LAST_NAME,
+				DatabaseContract.ListMap.COL_LOCATION_TIME
+			};
+    		break;
+    	case LIST_TYPE_PEOPLE_BY_SPECIALTY:
+    		contentUri = DatabaseContract.ListPeopleBySpecialty.CONTENT_URI;
+    		projection = new String[] {
+				DatabaseContract.ListPeopleBySpecialty.COL_ID,
+				DatabaseContract.ListPeopleBySpecialty.COL_PERSON_ID,
+				DatabaseContract.ListPeopleBySpecialty.COL_CITY,
+				DatabaseContract.ListPeopleBySpecialty.COL_STATE,
+				DatabaseContract.ListPeopleBySpecialty.COL_ZIP,
+				DatabaseContract.ListPeopleBySpecialty.COL_FIRST_NAME,
+				DatabaseContract.ListPeopleBySpecialty.COL_LAST_NAME
+			};
+    		break;
+    	case LIST_TYPE_SEARCH_ALL:
+    		contentUri = DatabaseContract.SearchAll.CONTENT_URI;
+    		projection = new String[] {
+    				DatabaseContract.SearchAll.COL_ID,
+    				DatabaseContract.SearchAll.COL_LOCATION_ID,
+    				DatabaseContract.SearchAll.COL_ORGANIZATION_ID,
+    				DatabaseContract.SearchAll.COL_SPECIALTY_ID,
+    				DatabaseContract.SearchAll.COL_PERSON_ID,
+    				DatabaseContract.SearchAll.COL_LINK_ID,
+    				DatabaseContract.SearchAll.COL_PRIMARY,
+    				DatabaseContract.SearchAll.COL_ORGANIZATION,
+    				DatabaseContract.SearchAll.COL_SPECIALTY,
+    				DatabaseContract.SearchAll.COL_LINK_TITLE,
+    				DatabaseContract.SearchAll.COL_LINK,
+    				DatabaseContract.SearchAll.COL_ADDRESS,
+    				DatabaseContract.SearchAll.COL_CITY,
+    				DatabaseContract.SearchAll.COL_STATE,
+    				DatabaseContract.SearchAll.COL_ZIP,
+    				DatabaseContract.SearchAll.COL_FIRST_NAME,
+    				DatabaseContract.SearchAll.COL_LAST_NAME,
+			};
     		break;
 		default:
-
-			break;
+			Log.w(LOG_TAG, "Unknown loader id: " + id);
+			return null;
     	}
 
-    	if (cursorLoader == null) {
-    		Log.d(LOG_TAG, "cursorLoader is null for id " + id);
-    	}
+    	cursorLoader = new CursorLoader(getActivity(), contentUri, projection, null, null, null);
 
     	return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-    	mCursorAdapter.swapCursor(cursor);
-
+    	if (Robodex.DEBUG) Log.i(LOG_TAG, "onLoadFinished()");
+    	mListAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     	if (Robodex.DEBUG) Log.i(LOG_TAG, "onLoaderReset()");
+    	mListAdapter.swapCursor(null);
+    }
 
-    	mCursorAdapter.swapCursor(null);
+
+
+
+
+
+    private static class BasicAdapter extends CursorAdapter {
+    	private final String mDbColumn;
+		public BasicAdapter(Context context, String dbColumn) {
+			super(context, null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+			mDbColumn = dbColumn;
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, parent, false);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			((TextView) view.findViewById(android.R.id.text1)).setText(
+				cursor.getString(cursor.getColumnIndex(mDbColumn))
+			);
+		}
+    }
+
+    private static class LinkAdapter extends CursorAdapter {
+		public LinkAdapter(Context context) {
+			super(context, null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, parent, false);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			Hyperlink.setText(((TextView) view.findViewById(android.R.id.text1)),
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_TITLE)),
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_LINK)));
+		}
+    }
+
+    private static abstract class BasicTwoItemAdapter extends CursorAdapter {
+
+		public BasicTwoItemAdapter(Context context) {
+			super(context, null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+		}
+
+		@Override
+		public final View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_2, parent, false);
+		}
+
+		@Override
+		public final void bindView(View view, Context context, Cursor cursor) {
+			bindText1((TextView) view.findViewById(android.R.id.text1), cursor);
+			bindText2((TextView) view.findViewById(android.R.id.text2), cursor);
+		}
+
+		protected abstract void bindText1(TextView tv, Cursor cursor);
+		protected abstract void bindText2(TextView tv, Cursor cursor);
+    }
+
+    private static class PersonAdapter extends BasicTwoItemAdapter {
+		public PersonAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void bindText1(TextView tv, Cursor cursor) {
+			tv.setText(
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListPeopleBySpecialty.COL_FIRST_NAME))
+				+ " " +
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListPeopleBySpecialty.COL_LAST_NAME)));
+		}
+
+		@Override
+		protected void bindText2(TextView tv, Cursor cursor) {
+			tv.setText(
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListPeopleBySpecialty.COL_CITY))
+				+ ", " +
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListPeopleBySpecialty.COL_STATE))
+				+ " " +
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_ZIP)));
+		}
+    }
+
+    private static class LocationAdapter extends BasicTwoItemAdapter {
+		public LocationAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void bindText1(TextView tv, Cursor cursor) {
+			int primary = cursor.getInt(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_PRIMARY));
+			tv.setText(
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_CITY))
+				+ ", " +
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_STATE))
+				+ ((primary == 1) ? " (Primary)" : ""));
+		}
+
+		@Override
+		protected void bindText2(TextView tv, Cursor cursor) {
+			tv.setText(
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_ADDRESS))
+				+ ", " +
+				cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLocationsByOrganization.COL_ZIP)));
+		}
+    }
+
+    private static class MapAdapter extends BasicTwoItemAdapter {
+		public MapAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void bindText1(TextView tv, Cursor cursor) {
+			String locId = cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_LOCATION_ID));
+			if (locId != null && locId.length() > 0) {
+				int primary = cursor.getInt(cursor.getColumnIndex(DatabaseContract.ListMap.COL_PRIMARY));
+				tv.setText(
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_ORGANIZATION))
+					+ ((primary == 1) ? " (Primary)" : ""));
+			}
+			else {
+				String locTime = cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_LOCATION_TIME));
+				tv.setText(
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_FIRST_NAME))
+					+ " " +
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_LAST_NAME))
+					+ ((locTime != null && locTime.length() > 0) ? " (Check-In)" : ""));
+			}
+		}
+
+		@Override
+		protected void bindText2(TextView tv, Cursor cursor) {
+			String text = cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_ADDRESS))
+					+ " " +
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_CITY))
+					+ ", " +
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_STATE))
+					+ " " +
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_ZIP));
+
+			String locTime = cursor.getString(cursor.getColumnIndex(DatabaseContract.ListMap.COL_LOCATION_TIME));
+			if (locTime != null && locTime.length() > 0) {
+				text += " (" + locTime + ") ";
+			}
+			tv.setText(text);
+		}
+    }
+
+    private static class SearchAdapter extends BasicTwoItemAdapter {
+		public SearchAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void bindText1(TextView tv, Cursor cursor) {
+			String locId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LOCATION_ID));
+			String orgId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ORGANIZATION_ID));
+			String specId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_SPECIALTY_ID));
+			String personId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_PERSON_ID));
+			String linkId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK_ID));
+			CharSequence text = "";
+			if (locId != null && locId.length() > 0) {
+				int primary = cursor.getInt(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_PRIMARY));
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ORGANIZATION))
+						+ ((primary == 1) ? " (Primary)" : "");
+			}
+			else if (orgId != null && orgId.length() > 0) {
+				int primary = cursor.getInt(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_PRIMARY));
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ORGANIZATION))
+						+ ((primary == 1) ? " (Primary)" : "");
+			}
+			else if (specId != null && specId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_SPECIALTY));
+			}
+			else if (personId != null && personId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_FIRST_NAME))
+						+ " " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LAST_NAME));
+			}
+
+
+			if (linkId != null && linkId.length() > 0) {
+				Hyperlink.setText(tv,
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK_TITLE)),
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK)));
+			}
+			else tv.setText(text);
+		}
+
+		@Override
+		protected void bindText2(TextView tv, Cursor cursor) {
+			String locId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LOCATION_ID));
+			String orgId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ORGANIZATION_ID));
+			String specId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_SPECIALTY_ID));
+			String personId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_PERSON_ID));
+			String linkId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK_ID));
+			CharSequence text = "";
+			if (locId != null && locId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ADDRESS))
+						+ " " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_CITY))
+						+ ", " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_STATE))
+						+ " " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ZIP));
+			}
+			else if (orgId != null && orgId.length() > 0) {
+				// blank
+			}
+			else if (specId != null && specId.length() > 0) {
+				// blank
+			}
+			else if (personId != null && personId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ADDRESS))
+						+ " " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_CITY))
+						+ ", " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_STATE))
+						+ " " +
+						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ZIP));
+			}
+			else if (linkId != null && linkId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK));
+			}
+			tv.setText(text);
+		}
     }
 }
