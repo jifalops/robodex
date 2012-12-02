@@ -15,7 +15,7 @@ import com.robodex.location.LocationUpdater.LocationUpdateListener;
 import com.robodex.request.ServerContract.RequestField;
 
 public final class CheckIn extends BaseRequest {
-	private static final long GPS_TIMEOUT = 1000 * 10;
+	private static final long GPS_TIMEOUT = 1000 * 5;
 	private long mStartTime;
 	private LocationUpdater mLocationUpdater;
 	private int mMemberId;

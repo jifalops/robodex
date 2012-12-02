@@ -1,6 +1,7 @@
 package com.robodex.app;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import com.robodex.R;
 import com.robodex.request.CheckIn;
+import com.robodex.request.ListMap;
 
 
 public class MainActivity extends BaseActivity {
@@ -67,8 +69,13 @@ public class MainActivity extends BaseActivity {
 		((ImageView) findViewById(R.id.map)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, MyMapActivity.class);
-				startActivity(intent);
+				if (Build.VERSION.SDK_INT < 11) {
+					Toast.makeText(MainActivity.this, "Not supported on your device.", Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Intent intent = new Intent(MainActivity.this, MyMapActivity.class);
+					startActivity(intent);
+				}
 			}
 		});
 	}

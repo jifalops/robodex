@@ -1,6 +1,12 @@
 package com.robodex.app;
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.net.Uri;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -43,9 +49,20 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        if (Robodex.DEBUG) {
-//            Toast.makeText(this,"option: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-//        }
+    	if (item.getItemId() == R.id.menu_about) {
+    		new AlertDialog.Builder(this).setTitle(R.string.app_name)
+	    		.setMessage("Verson: " + getAppVersionName(this)
+	    				+ " (" + getAppVersionCode(this) + ") BETA\n")
+				.setPositiveButton("OK", null)
+				.setNegativeButton("Report Bug", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivity(new Intent(Intent.ACTION_VIEW,
+								Uri.parse("https://github.com/jphilli85/robodex/issues")));
+					}
+				})
+	    		.show();
+    	}
 
         return super.onOptionsItemSelected(item);
     }
@@ -60,5 +77,29 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
     	if (mMenu == null) return;
     	if (show) (mMenu.findItem(R.id.menu_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	else (mMenu.findItem(R.id.menu_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    }
+
+    private static String getAppVersionName(Context context) {
+    	try {
+    		ComponentName comp = new ComponentName(context, context.getClass());
+    		PackageInfo info = context.getPackageManager().getPackageInfo(
+    				comp.getPackageName(), 0);
+    		return info.versionName;
+    	}
+    	catch (android.content.pm.PackageManager.NameNotFoundException e) {
+    	    return null;
+    	}
+    }
+
+    private static int getAppVersionCode(Context context) {
+    	try {
+    		ComponentName comp = new ComponentName(context, context.getClass());
+    		PackageInfo info = context.getPackageManager().getPackageInfo(
+    				comp.getPackageName(), 0);
+    		return info.versionCode;
+    	}
+    	catch (android.content.pm.PackageManager.NameNotFoundException e) {
+    	    return -1;
+    	}
     }
 }

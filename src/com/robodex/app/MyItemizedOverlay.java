@@ -22,6 +22,9 @@ public class MyItemizedOverlay extends ItemizedOverlay {
         super(boundCenterBottom(defaultMarker));
     }
 
+    public static void setMarker(OverlayItem item, Drawable marker) {
+    	item.setMarker(boundCenterBottom(marker));
+    }
 
     @Override
     public int size() {

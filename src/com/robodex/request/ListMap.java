@@ -14,11 +14,18 @@ import android.location.Location;
 import android.location.LocationManager;
 
 public final class ListMap extends BaseRequest {
-	private static final long GPS_TIMEOUT = 1000 * 10;
+	private static final long GPS_TIMEOUT = 1000 * 1;
 	private long mStartTime;
 	private LocationUpdater mLocationUpdater;
 
-	public ListMap() {
+	public interface Callbacks {
+		void onSetInitialLocation(Location location);
+		void onLocationAccepted(Location location);
+	}
+	private Callbacks mCallbacks;
+
+	public ListMap(Callbacks callbacks) {
+		mCallbacks = callbacks;
 		mLocationUpdater = new LocationUpdater(Robodex.sAppContext, new LocationUpdateListener() {
 			@Override
 			public void onLocationUpdated(Location location) {
@@ -28,6 +35,7 @@ public final class ListMap extends BaseRequest {
 				}
 			}
 		});
+		if (mCallbacks != null) mCallbacks.onSetInitialLocation(mLocationUpdater.getBestLocation());
 		mStartTime = System.currentTimeMillis();
 		mLocationUpdater.startListeningToGps();
 		mLocationUpdater.startListeningToNetwork();
@@ -40,6 +48,7 @@ public final class ListMap extends BaseRequest {
 
 	private void acceptLocation(Location location) {
 		mLocationUpdater.stopListeningToAll();
+		if (mCallbacks != null) mCallbacks.onLocationAccepted(location);
 		Map<String, String> request = new HashMap<String, String>();
 		request.put(RequestField.LATITUDE, String.valueOf(location.getLatitude()));
 		request.put(RequestField.LONGITUDE, String.valueOf(location.getLongitude()));
