@@ -18,8 +18,7 @@ public final class ListMap extends BaseRequest {
 	private long mStartTime;
 	private LocationUpdater mLocationUpdater;
 
-	@Override
-	protected void prepareRequest() {
+	public ListMap() {
 		mLocationUpdater = new LocationUpdater(Robodex.sAppContext, new LocationUpdateListener() {
 			@Override
 			public void onLocationUpdated(Location location) {
@@ -29,10 +28,14 @@ public final class ListMap extends BaseRequest {
 				}
 			}
 		});
-
 		mStartTime = System.currentTimeMillis();
 		mLocationUpdater.startListeningToGps();
 		mLocationUpdater.startListeningToNetwork();
+	}
+
+	@Override
+	protected void prepareRequest() {
+
 	}
 
 	private void acceptLocation(Location location) {

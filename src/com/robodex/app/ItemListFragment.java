@@ -26,6 +26,7 @@ import com.robodex.request.ListLocationsByOrganization;
 import com.robodex.request.ListOrganizations;
 import com.robodex.request.ListPeopleBySpecialty;
 import com.robodex.request.ListSpecialties;
+import com.robodex.request.SearchAll;
 public class ItemListFragment extends SherlockListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String LOG_TAG = ItemListFragment.class.getSimpleName();
@@ -50,6 +51,7 @@ public class ItemListFragment extends SherlockListFragment implements
     static final String ARG_SPECIALTY_ID 	= "specialty_id";		// to list people
     static final String ARG_ORGANIZATION 	= "organization";    	// to set title
     static final String ARG_SPECIALTY 		= "specialty";			// to set title
+    static final String ARG_SEARCH_TERMS 	= "search_terms";
 
     static final int LIST_TYPE_SPECIALTIES 		   = 1;
     static final int LIST_TYPE_ORGANIZATIONS 	   = 2;
@@ -102,7 +104,7 @@ public class ItemListFragment extends SherlockListFragment implements
     		break;
     	case LIST_TYPE_SEARCH_ALL:
     		getActivity().setTitle(R.string.search_results);
-    		mRequest   	 = null;
+    		mRequest   	 = new SearchAll(getArguments().getString(ARG_SEARCH_TERMS));
     		mListAdapter = new SearchAdapter(getActivity());
     		break;
     	case LIST_TYPE_SPECIALTIES:
@@ -334,23 +336,7 @@ public class ItemListFragment extends SherlockListFragment implements
 		}
     }
 
-    private static class LinkAdapter extends CursorAdapter {
-		public LinkAdapter(Context context) {
-			super(context, null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-		}
 
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, parent, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			Hyperlink.setText(((TextView) view.findViewById(android.R.id.text1)),
-					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_TITLE)),
-					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_LINK)));
-		}
-    }
 
     private static abstract class BasicTwoItemAdapter extends CursorAdapter {
 
@@ -371,6 +357,24 @@ public class ItemListFragment extends SherlockListFragment implements
 
 		protected abstract void bindText1(TextView tv, Cursor cursor);
 		protected abstract void bindText2(TextView tv, Cursor cursor);
+    }
+
+    private static class LinkAdapter extends BasicTwoItemAdapter {
+		public LinkAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void bindText1(TextView tv, Cursor cursor) {
+			Hyperlink.setText(tv,
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_TITLE)),
+					cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_LINK)));
+		}
+
+		@Override
+		protected void bindText2(TextView tv, Cursor cursor) {
+			tv.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ListLinks.COL_LINK)));
+		}
     }
 
     private static class PersonAdapter extends BasicTwoItemAdapter {
@@ -512,7 +516,10 @@ public class ItemListFragment extends SherlockListFragment implements
 			String personId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_PERSON_ID));
 			String linkId = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK_ID));
 			CharSequence text = "";
-			if (locId != null && locId.length() > 0) {
+			if (linkId != null && linkId.length() > 0) {
+				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK));
+			}
+			else if (locId != null && locId.length() > 0) {
 				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ADDRESS))
 						+ " " +
 						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_CITY))
@@ -520,12 +527,6 @@ public class ItemListFragment extends SherlockListFragment implements
 						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_STATE))
 						+ " " +
 						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ZIP));
-			}
-			else if (orgId != null && orgId.length() > 0) {
-				// blank
-			}
-			else if (specId != null && specId.length() > 0) {
-				// blank
 			}
 			else if (personId != null && personId.length() > 0) {
 				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ADDRESS))
@@ -536,8 +537,11 @@ public class ItemListFragment extends SherlockListFragment implements
 						+ " " +
 						cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_ZIP));
 			}
-			else if (linkId != null && linkId.length() > 0) {
-				text = cursor.getString(cursor.getColumnIndex(DatabaseContract.SearchAll.COL_LINK));
+			else if (orgId != null && orgId.length() > 0) {
+				text = tv.getContext().getString(R.string.organization);
+			}
+			else if (specId != null && specId.length() > 0) {
+				text = tv.getContext().getString(R.string.specialty);
 			}
 			tv.setText(text);
 		}

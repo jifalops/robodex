@@ -28,7 +28,7 @@
         </activity>
         <activity
             android:name="com.robodex.app.MainActivity"
-            android:theme="@android:style/Theme.NoTitleBar">
+            android:label="@string/title_activity_main">
         </activity>
         <activity
             android:name="com.robodex.app.MainListActivity"

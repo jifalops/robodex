@@ -21,11 +21,8 @@ public class ItemListActivity extends BaseActivity implements ItemListFragment.C
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
-            Bundle args = new Bundle();
-            args.putInt(ItemListFragment.ARG_LIST_TYPE,
-                    getIntent().getIntExtra(ItemListFragment.ARG_LIST_TYPE, 0));
             ItemListFragment fragment = new ItemListFragment();
-            fragment.setArguments(args);
+            fragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
             	.add(R.id.fragment_container, fragment)
             	.commit();

@@ -2,25 +2,29 @@ package com.robodex.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.robodex.R;
+import com.robodex.request.CheckIn;
 
 
 public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getSupportActionBar().hide();
+
 		setContentView(R.layout.activity_main);
 
 		((ImageView) findViewById(R.id.search)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, "SEARCH!!!", Toast.LENGTH_SHORT).show();
-				// TODO dialog??
+				getSupportActionBar().show();
+				focusSearchView();
 			}
 		});
 
@@ -51,11 +55,12 @@ public class MainActivity extends BaseActivity {
 			}
 		});
 
-		((ImageView) findViewById(R.id.about)).setOnClickListener(new OnClickListener() {
+		((ImageView) findViewById(R.id.checkin)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, "ABOUT!!!", Toast.LENGTH_SHORT).show();
-				// TODO make activity
+				// TODO dyamicanizeit
+				(new CheckIn(1)).execute();
+				Toast.makeText(MainActivity.this, "Updating your location...", Toast.LENGTH_LONG).show();
 			}
 		});
 

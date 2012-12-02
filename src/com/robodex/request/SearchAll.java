@@ -11,7 +11,7 @@ import com.robodex.request.ServerContract.RequestField;
 public final class SearchAll extends BaseEndlessListRequest {
 	private String mQuery;
 
-	public void setQueryString(String query) {
+	public SearchAll(String query) {
 		mQuery = query;
 	}
 

@@ -841,7 +841,7 @@ public final class DatabaseContract {
 
         static final String	CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
                 + COL_ID 					+ " integer PRIMARY KEY AUTOINCREMENT, "
-                + COL_SEARCH				+ " text NOT NULL, "
+                + COL_SEARCH				+ " text, "
                 + COL_ORGANIZATION_ID		+ " integer, "
                 + COL_ORGANIZATION			+ " text, "
                 + COL_LOCATION_ID 			+ " integer, "

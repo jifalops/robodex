@@ -6,6 +6,7 @@ import java.util.Map;
 import android.content.ContentValues;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Looper;
 
 import com.robodex.Robodex;
 import com.robodex.data.DatabaseContract;
@@ -17,9 +18,10 @@ public final class CheckIn extends BaseRequest {
 	private static final long GPS_TIMEOUT = 1000 * 10;
 	private long mStartTime;
 	private LocationUpdater mLocationUpdater;
+	private int mMemberId;
 
-	@Override
-	protected void prepareRequest() {
+	public CheckIn(int memberId) {
+		mMemberId = memberId;
 		mLocationUpdater = new LocationUpdater(Robodex.sAppContext, new LocationUpdateListener() {
 			@Override
 			public void onLocationUpdated(Location location) {
@@ -29,18 +31,23 @@ public final class CheckIn extends BaseRequest {
 				}
 			}
 		});
-
 		mStartTime = System.currentTimeMillis();
 		mLocationUpdater.startListeningToGps();
 		mLocationUpdater.startListeningToNetwork();
 	}
 
+	@Override
+	protected void prepareRequest() {
+
+	}
+
 	private void acceptLocation(Location location) {
 		mLocationUpdater.stopListeningToAll();
 		Map<String, String> request = new HashMap<String, String>();
+		request.put(RequestField.MEMBER_ID, String.valueOf(mMemberId));
 		request.put(RequestField.LATITUDE, String.valueOf(location.getLatitude()));
 		request.put(RequestField.LONGITUDE, String.valueOf(location.getLongitude()));
-		request.put(RequestField.LOCATION_TIME, String.valueOf(location.getTime()));
+//		request.put(RequestField.LOCATION_TIME, String.valueOf(location.getTime()));
 		request.put(RequestField.LOCATION_ACCURACY, String.valueOf(location.getAccuracy()));
 		executeRequest(request);
 	}

@@ -28,6 +28,12 @@
 	            android:contentDescription="@string/search"
 		        android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" />
+		    <TextView
+		        android:text="@string/search"
+		        android:layout_gravity="center_horizontal"
+		        android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -38,6 +44,12 @@
 	            android:contentDescription="@string/map"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" />
+		    <TextView
+                android:text="@string/map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -48,6 +60,12 @@
 	            android:contentDescription="@string/links"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" />
+		    <TextView
+                android:text="@string/links"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -71,6 +89,12 @@
 	            android:contentDescription="@string/specialties"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" />
+		    <TextView
+                android:text="@string/specialties"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
 		        android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -81,16 +105,28 @@
 	            android:contentDescription="@string/organizations"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" />
+		    <TextView
+                android:text="@string/organizations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight=".25" />
 		    <ImageView
-                android:id="@+id/about"
-                android:src="@drawable/main_about"
+                android:id="@+id/checkin"
+                android:src="@drawable/main_checkin"
                 android:contentDescription="@string/about"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+		    <TextView
+                android:text="@string/checkin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 		    <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
