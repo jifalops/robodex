@@ -91,4 +91,16 @@ public class MainListActivity extends BaseActivity implements MainListFragment.C
 	public void onInvalidListType() {
 		Toast.makeText(this, getString(R.string.error_invalid_list_type), Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void onNoItems() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onInvalidItems() {
+		// TODO Auto-generated method stub
+
+	}
 }

@@ -603,6 +603,8 @@ public final class DatabaseContract {
         // Person fields
         public static final String 	COL_FIRST_NAME		= "first_name";
         public static final String 	COL_LAST_NAME		= "last_name";
+        public static final String 	COL_SPECIALTIES		= "specialties";
+        public static final String 	COL_ORGANIZATIONS	= "organizations";
         public static final String 	COL_ADDRESS			= "address";
         public static final String 	COL_CITY			= "city";
         public static final String 	COL_STATE			= "state";
@@ -640,10 +642,12 @@ public final class DatabaseContract {
 
         static final String	CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
                 + COL_ID 					+ " integer PRIMARY KEY AUTOINCREMENT, "
-                + COL_PERSON_ID 			+ " integer UNIQUE NOT NULL, "
+                + COL_PERSON_ID 			+ " integer NOT NULL, "
 
                 + COL_FIRST_NAME 			+ " text, "
                 + COL_LAST_NAME 			+ " text, "
+                + COL_SPECIALTIES 			+ " text, "
+                + COL_ORGANIZATIONS			+ " text, "
                 + COL_ADDRESS 				+ " text, "
                 + COL_CITY 					+ " text, "
                 + COL_STATE 				+ " text, "

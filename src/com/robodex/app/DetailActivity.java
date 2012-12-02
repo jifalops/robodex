@@ -2,6 +2,7 @@ package com.robodex.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -11,6 +12,8 @@ import com.robodex.R;
 import com.robodex.Robodex;
 
 public class DetailActivity extends BaseActivity implements DetailFragment.Callbacks {
+	private static final String LOG_TAG = DetailActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,4 +50,25 @@ public class DetailActivity extends BaseActivity implements DetailFragment.Callb
 
         return super.onOptionsItemSelected(item);
     }
+
+
+	@Override
+	public void onInvalidDetailType() {
+		Log.e(LOG_TAG, "InvalidDetailType");
+		Toast.makeText(this, getString(R.string.error_invalid_details_type), Toast.LENGTH_LONG).show();
+	}
+
+
+	@Override
+	public void onNoDetails() {
+		Log.w(LOG_TAG, "NoDetails");
+//		Toast.makeText(this, getString(R.string.error_invalid_details_type), Toast.LENGTH_LONG).show();
+	}
+
+
+	@Override
+	public void onInvalidDetails() {
+		Log.e(LOG_TAG, "InvalidDetails");
+		Toast.makeText(this, getString(R.string.error_invalid_details_type), Toast.LENGTH_LONG).show();
+	}
 }

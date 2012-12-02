@@ -114,4 +114,16 @@ public class ItemListActivity extends BaseActivity implements ItemListFragment.C
 		Log.e(LOG_TAG, "InvalidListType");
 		Toast.makeText(this, getString(R.string.error_invalid_list_type), Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void onNoItems() {
+		Log.w(LOG_TAG, "NoItems");
+//		Toast.makeText(this, getString(R.string.error_invalid_list_type), Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onInvalidItems() {
+		Log.e(LOG_TAG, "InvalidItems");
+		Toast.makeText(this, getString(R.string.error_invalid_list_type), Toast.LENGTH_LONG).show();
+	}
 }

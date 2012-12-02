@@ -10,14 +10,20 @@
 		    android:id="@+id/name"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    android:gravity="center_vertical"
+		    android:gravity="center"
 		    android:minHeight="?android:attr/listPreferredItemHeight"
 		    android:paddingLeft="6dip"
+		    android:textStyle="bold"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
-        <ImageView
+        <TextView
             android:id="@+id/specialtiesExpandCollapse"
+            android:text="@string/specialties"
+            android:drawableLeft="@drawable/collapse"
+            android:textStyle="bold"
+            android:gravity="bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:contentDescription="@string/content_description_expand_collapse" />
         <TextView
             android:id="@+id/specialties"
@@ -27,10 +33,15 @@
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        <ImageView
+        <TextView
             android:id="@+id/organizationsExpandCollapse"
+            android:text="@string/organizations"
+            android:drawableLeft="@drawable/collapse"
+            android:textStyle="bold"
+            android:gravity="bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:contentDescription="@string/content_description_expand_collapse" />
         <TextView
             android:id="@+id/organizations"
@@ -41,15 +52,32 @@
             android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
+            android:text="@string/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
             android:id="@+id/address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingRight="6dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/location"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/checkin_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/checkin"
             android:layout_width="match_parent"
@@ -57,9 +85,18 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingRight="6dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/location"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:gravity="bottom"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/phone"
             android:layout_width="match_parent"
@@ -67,9 +104,18 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
+            android:paddingRight="6dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/call"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/email"
             android:layout_width="match_parent"
@@ -77,9 +123,18 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingRight="6dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/email"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/notes"
             android:layout_width="match_parent"
@@ -87,6 +142,7 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:paddingRight="6dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 </ScrollView>

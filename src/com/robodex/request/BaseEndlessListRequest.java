@@ -45,19 +45,6 @@ public abstract class BaseEndlessListRequest extends BaseRequest {
 
 
 	@Override
-	protected final int handleResponseCodes(JSONObject response) {
-		final int code = super.handleResponseCodes(response);
-
-		if (code == ResponseCode.OK) {
-			int rows = Robodex.sAppContext.getContentResolver().delete(getContenUri(), null, null);
-			if (Robodex.DEBUG) {
-				Log.i(LOG_TAG, "Truncated " + rows + " rows from " + getContenUri().getLastPathSegment());
-			}
-		}
-		return code;
-	}
-
-	@Override
 	protected final int processResponseResults(JSONArray results) {
 		final int numRows = super.processResponseResults(results);
 		mStartPosition.getAndAdd(numRows);

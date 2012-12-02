@@ -137,7 +137,7 @@ public final class ServerContract {
 
         // Member
         public static final String MEMBER_ID					= "member_id";
-        public static final String MEMBER_EMAIL				= "member_email";
+        public static final String EMAIL						= "email";
         public static final String USERNAME					= "username";
         public static final String PASSWORD					= "password";
         public static final String LOCATION_TIME				= "location_time";
@@ -153,6 +153,8 @@ public final class ServerContract {
         public static final String PERSON_ID					= "person_id";
         public static final String FIRST_NAME					= "first_name";
         public static final String LAST_NAME					= "last_name";
+        public static final String SPECIALTIES					= "specialties";
+        public static final String ORGANIZATIONS				= "organizations";
         public static final String NOTES						= "notes";
 
         // Role

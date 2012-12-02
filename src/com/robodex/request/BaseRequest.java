@@ -233,6 +233,12 @@ public abstract class BaseRequest {
         if (code != ResponseCode.OK) {
             Log.e(LOG_TAG, "Error " + code + ": " + msg);
         }
+        else {
+        	int rows = Robodex.sAppContext.getContentResolver().delete(getContenUri(), null, null);
+			if (Robodex.DEBUG) {
+				Log.i(LOG_TAG, "Truncated " + rows + " rows from " + getContenUri().getLastPathSegment());
+			}
+        }
 
         return code;
     }

@@ -32,12 +32,16 @@ public class ItemListFragment extends SherlockListFragment implements
 
 	interface Callbacks {
 		void onInvalidListType();
+		void onNoItems();
+		void onInvalidItems();
         void onItemSelected(int position);
     }
 
 	// Used temporarily during lifecycle methods
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override public void onInvalidListType() {}
+		@Override public void onNoItems() {}
+		@Override public void onInvalidItems() {}
         @Override public void onItemSelected(int position) {}
     };
 
@@ -72,37 +76,37 @@ public class ItemListFragment extends SherlockListFragment implements
 
         switch (mListType) {
     	case LIST_TYPE_LINKS:
-    		getActivity().setTitle(getString(R.string.links));
+    		getActivity().setTitle(R.string.links);
     		mRequest     = new ListLinks();
             mListAdapter = new LinkAdapter(getActivity());
     		break;
     	case LIST_TYPE_LOCATIONS:
-    		getActivity().setTitle(getArguments().getString(ARG_ORGANIZATION));
+    		getActivity().setTitle(getArguments().getString(ARG_ORGANIZATION) + " " + getString(R.string.locations));
     		mRequest     = new ListLocationsByOrganization(getArguments().getInt(ARG_ORGANIZATION_ID));
     		mListAdapter = new LocationAdapter(getActivity());
     		break;
     	case LIST_TYPE_MAP:
-    		getActivity().setTitle(getString(R.string.map_items));
+    		getActivity().setTitle(R.string.map_items);
     		mRequest     = null;
     		mListAdapter = new MapAdapter(getActivity());
     		break;
     	case LIST_TYPE_ORGANIZATIONS:
-    		getActivity().setTitle(getString(R.string.organizations));
+    		getActivity().setTitle(R.string.organizations);
     		mRequest     = new ListOrganizations();
             mListAdapter = new BasicAdapter(getActivity(), DatabaseContract.ListOrganizations.COL_ORGANIZATION);
     		break;
     	case LIST_TYPE_PEOPLE_BY_SPECIALTY:
-    		getActivity().setTitle(getArguments().getString(ARG_SPECIALTY));
+    		getActivity().setTitle(getArguments().getString(ARG_SPECIALTY) + " " + getString(R.string.specialists));
     		mRequest     = new ListPeopleBySpecialty(getArguments().getInt(ARG_SPECIALTY_ID));
     		mListAdapter = new PersonAdapter(getActivity());
     		break;
     	case LIST_TYPE_SEARCH_ALL:
-    		getActivity().setTitle(getString(R.string.search_results));
+    		getActivity().setTitle(R.string.search_results);
     		mRequest   	 = null;
     		mListAdapter = new SearchAdapter(getActivity());
     		break;
     	case LIST_TYPE_SPECIALTIES:
-    		getActivity().setTitle(getString(R.string.specialties));
+    		getActivity().setTitle(R.string.specialties);
     		mRequest   	 = new ListSpecialties();
             mListAdapter = new BasicAdapter(getActivity(), DatabaseContract.ListSpecialties.COL_SPECIALTY);
     		break;
@@ -287,7 +291,16 @@ public class ItemListFragment extends SherlockListFragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     	if (Robodex.DEBUG) Log.i(LOG_TAG, "onLoadFinished()");
-    	mListAdapter.swapCursor(cursor);
+    	if (cursor == null || cursor.getCount() < 1) {
+    		mCallbacks.onNoItems();
+    		return;
+    	}
+    	try {
+    		mListAdapter.swapCursor(cursor);
+    	}
+    	catch (Exception e) {
+    		mCallbacks.onInvalidItems();
+    	}
     }
 
     @Override

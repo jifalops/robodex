@@ -10,10 +10,19 @@
 		    android:id="@+id/organization"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    android:gravity="center_vertical"
+		    android:gravity="center"
+		    android:textStyle="bold"
 		    android:minHeight="?android:attr/listPreferredItemHeight"
 		    android:paddingLeft="6dip"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:text="@string/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/address"
             android:layout_width="match_parent"
@@ -21,9 +30,18 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
+            android:paddingRight="6dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/location"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/phone"
             android:layout_width="match_parent"
@@ -31,9 +49,18 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
+            android:paddingRight="6dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/call"
             android:drawablePadding="16dp" />
+        <TextView
+            android:text="@string/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
         <TextView
             android:id="@+id/email"
             android:layout_width="match_parent"
@@ -41,7 +68,8 @@
             android:gravity="center_vertical"
             android:minHeight="?android:attr/listPreferredItemHeight"
             android:paddingLeft="6dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingRight="6dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:drawableRight="@drawable/email"
             android:drawablePadding="16dp" />
     </LinearLayout>

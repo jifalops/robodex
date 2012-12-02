@@ -14,6 +14,7 @@
 
     <string name="specialty">Specialty</string>
     <string name="specialties">Specialties</string>
+    <string name="specialists">Specialists</string>
     <string name="organization">Organization</string>
     <string name="organizations">Organizations</string>
     <string name="location">Location</string>
@@ -30,10 +31,24 @@
     <string name="map">Map</string>
     <string name="about">About</string>
 
+    <string name="address">Address</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    <string name="checkin_time">Last Check-In</string>
+    <string name="notes">Notes</string>
+
+    <string name="detail_person">Person Details</string>
+    <string name="detail_location">Location Details</string>
+
     <string name="search_results">Search Results</string>
     <string name="search_hint_default">Search All</string>
+
+    <string name="blank">(none)</string>
 
     <string name="content_description_expand_collapse">Expand/Collapse</string>
 
     <string name="error_invalid_list_type">Nothing to display</string>
+    <string name="error_invalid_details_type">Nothing to display</string>
+
+
 </resources>
