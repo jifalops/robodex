@@ -34,8 +34,14 @@ public final class ListMap extends BaseRequest {
 					acceptLocation(location);
 				}
 			}
+
+			@Override
+			public void onTimeLimitExceeded(Location location) {
+				acceptLocation(location);
+			}
 		});
 		if (mCallbacks != null) mCallbacks.onSetInitialLocation(mLocationUpdater.getBestLocation());
+		mLocationUpdater.setTimeLimit(GPS_TIMEOUT);
 		mStartTime = System.currentTimeMillis();
 		mLocationUpdater.startListeningToGps();
 		mLocationUpdater.startListeningToNetwork();

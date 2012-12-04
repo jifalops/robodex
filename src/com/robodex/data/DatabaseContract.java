@@ -1133,8 +1133,8 @@ public final class DatabaseContract {
 
         static final String	CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
                 + COL_ID 					+ " integer PRIMARY KEY AUTOINCREMENT, "
-                + COL_SEARCH 				+ " text NOT NULL, "
-                + COL_TIMESTAMP 			+ " text NOT NULL, "
+                + COL_SEARCH 				+ " text, "
+                + COL_TIMESTAMP 			+ " text, "
 
                 + COL_LATITUDE 				+ " real, "
                 + COL_LONGITUDE 			+ " real, "
@@ -1179,7 +1179,7 @@ public final class DatabaseContract {
 
         static final String	CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
                 + COL_ID 					+ " integer PRIMARY KEY AUTOINCREMENT, "
-                + COL_TIMESTAMP 			+ " text NOT NULL, "
+                + COL_TIMESTAMP 			+ " text, "
                 + COL_LATITUDE 				+ " real, "
                 + COL_LONGITUDE 			+ " real, "
                 + COL_ACCURACY 				+ " real"
@@ -1202,7 +1202,7 @@ public final class DatabaseContract {
 
         static final String	CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
                 + COL_ID 					+ " integer PRIMARY KEY AUTOINCREMENT, "
-                + COL_TIMESTAMP 			+ " text NOT NULL, "
+                + COL_TIMESTAMP 			+ " text, "
                 + COL_AUTH_KEY				+ " text"
                 + ");";
     }

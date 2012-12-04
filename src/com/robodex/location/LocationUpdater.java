@@ -14,6 +14,7 @@ public class LocationUpdater {
 
 	public static interface LocationUpdateListener {
 		void onLocationUpdated(Location location);
+		void onTimeLimitExceeded(Location location);
 	}
 
 	private final 	LocationManager 	mLocationManager;
@@ -25,6 +26,7 @@ public class LocationUpdater {
 
 	private	final	LocationUpdateListener mLocationUpdateListener;
 
+	private long mTimeLimit;
 
 	public LocationUpdater(Context context, LocationUpdateListener listener) {
 		mLocationManager 	= (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -33,6 +35,10 @@ public class LocationUpdater {
 		mNetworkListener	= new ProviderListener(LocationManager.NETWORK_PROVIDER);
 		mPassiveListener	= new ProviderListener(LocationManager.PASSIVE_PROVIDER);
 		setInitialLocation();
+	}
+
+	public void setTimeLimit(long millis) {
+		mTimeLimit = millis;
 	}
 
 	/** Can be used to get a location without having to listen for location changes. */
@@ -88,6 +94,7 @@ public class LocationUpdater {
 
 	private class ProviderListener implements LocationListener {
 		private final String mProvider;
+		private long mStartTime;
 
 		ProviderListener(String provider) {
 			mProvider = provider;
@@ -95,6 +102,7 @@ public class LocationUpdater {
 
 		void startListening() {
 			mLocationManager.requestLocationUpdates(mProvider, 0, 0, this);
+			mStartTime = System.currentTimeMillis();
 		}
 
 		void stopListening() {
@@ -111,6 +119,12 @@ public class LocationUpdater {
 				mBestLocation = location;
 				if (mLocationUpdateListener != null) {
 					mLocationUpdateListener.onLocationUpdated(location);
+				}
+			}
+
+			if (System.currentTimeMillis() - mStartTime > mTimeLimit) {
+				if (mLocationUpdateListener != null) {
+					mLocationUpdateListener.onTimeLimitExceeded(mBestLocation);
 				}
 			}
 		}

@@ -22,6 +22,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.robodex.R;
 import com.robodex.Robodex;
 import com.robodex.data.DatabaseContract;
@@ -35,16 +38,18 @@ public class DetailFragment extends SherlockFragment implements
 	private static final String STRING_DELIMITER = "<>]&"; // hack array<--->string
 
 	interface Callbacks {
-		void onInvalidDetailType();
-		void onNoDetails();
-		void onInvalidDetails();
+		void onEditDetails(int type, int id);
+		void onInvalidDetailType(int type, int id);
+		void onNoDetails(int type, int id);
+		void onInvalidDetails(int type, int id);
     }
 
 	/** Used temporarily during lifecycle methods. */
 	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override public void onInvalidDetailType() {}
-		@Override public void onNoDetails() {}
-		@Override public void onInvalidDetails() {}
+		@Override public void onEditDetails(int type, int id) {}
+		@Override public void onInvalidDetailType(int type, int id) {}
+		@Override public void onNoDetails(int type, int id) {}
+		@Override public void onInvalidDetails(int type, int id) {}
     };
 
     static final String ARG_DETAIL_TYPE = "type_of_details";
@@ -168,20 +173,12 @@ public class DetailFragment extends SherlockFragment implements
     	void updateViews() {
     		hasUpdated = true;
 	    	if (!hasInitialized) return;
-	    	removeNullStrings();
 	    	showBlankFields(addressView.getContext().getString(R.string.blank));
     		organizationView.setText(organization);
     		Hyperlink.setText(addressView, address);
     		Hyperlink.setText(phoneView, phone);
     		Hyperlink.setText(emailView, email);
     	}
-
-    	void removeNullStrings() {
-	    	organization = organization.replace("null", "");
-	    	address = address.replace("null", "");
-	    	phone = phone.replace("null", "");
-	    	email = email.replace("null", "");
-	    }
 
     	void showBlankFields(String replacement) {
 	    	if (organization.replaceAll("\\s+", "").length() == 0) organization = replacement;
@@ -191,8 +188,8 @@ public class DetailFragment extends SherlockFragment implements
 	    }
     }
 
-    Person mPerson;
-    Location mLocation;
+    private Person mPerson;
+    private Location mLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -202,6 +199,8 @@ public class DetailFragment extends SherlockFragment implements
 
     	mPerson = new Person();
     	mLocation = new Location();
+
+    	setHasOptionsMenu(true);
 
     	switch (mDetailType) {
         case DETAIL_TYPE_LOCATION:
@@ -214,7 +213,7 @@ public class DetailFragment extends SherlockFragment implements
         	break;
     	default:
     		mRequest = null;
-    		mCallbacks.onInvalidDetailType();
+    		mCallbacks.onInvalidDetailType(mDetailType, mItemId);
         }
 
     	if (mRequest != null) mRequest.execute();
@@ -237,6 +236,21 @@ public class DetailFragment extends SherlockFragment implements
         	break;
         }
         return v;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	super.onCreateOptionsMenu(menu, inflater);
+    	menu.findItem(R.id.edit).setVisible(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+    	case R.id.edit:
+    		mCallbacks.onEditDetails(mDetailType, mItemId);
+    	}
+    	return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -316,7 +330,7 @@ public class DetailFragment extends SherlockFragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
     	if (Robodex.DEBUG) Log.i(LOG_TAG, "onLoadFinished()");
     	if (c == null || c.getCount() < 1) {
-    		mCallbacks.onNoDetails();
+    		mCallbacks.onNoDetails(mDetailType, mItemId);
     		return;
     	}
     	c.moveToFirst();
@@ -385,7 +399,7 @@ public class DetailFragment extends SherlockFragment implements
 	    	}
     	}
 	    catch (CursorIndexOutOfBoundsException e) {
-	    	mCallbacks.onInvalidDetails();
+	    	mCallbacks.onInvalidDetails(mDetailType, mItemId);
 	    }
     }
 

@@ -30,7 +30,12 @@ public final class CheckIn extends BaseRequest {
 					acceptLocation(location);
 				}
 			}
+			@Override
+			public void onTimeLimitExceeded(Location location) {
+				acceptLocation(location);
+			}
 		});
+		mLocationUpdater.setTimeLimit(GPS_TIMEOUT);
 		mStartTime = System.currentTimeMillis();
 		mLocationUpdater.startListeningToGps();
 		mLocationUpdater.startListeningToNetwork();

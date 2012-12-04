@@ -43,13 +43,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 			}
 		});
 
-        (menu.findItem(R.id.menu_search)).setActionView(mSearchView);
+        (menu.findItem(R.id.search)).setActionView(mSearchView);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if (item.getItemId() == R.id.menu_about) {
+    	if (item.getItemId() == R.id.about) {
     		new AlertDialog.Builder(this).setTitle(R.string.app_name)
 	    		.setMessage("Verson: " + getAppVersionName(this)
 	    				+ " (" + getAppVersionCode(this) + ") BETA\n")
@@ -75,8 +75,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 
     protected void setSearchViewVisibility(boolean show) {
     	if (mMenu == null) return;
-    	if (show) (mMenu.findItem(R.id.menu_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-    	else (mMenu.findItem(R.id.menu_search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    	if (show) (mMenu.findItem(R.id.search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    	else (mMenu.findItem(R.id.search)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
     }
 
     private static String getAppVersionName(Context context) {

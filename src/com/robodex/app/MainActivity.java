@@ -1,6 +1,9 @@
 package com.robodex.app;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -60,9 +63,19 @@ public class MainActivity extends BaseActivity {
 		((ImageView) findViewById(R.id.checkin)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO dyamicanizeit
-				(new CheckIn(1)).execute();
-				Toast.makeText(MainActivity.this, "Updating your location...", Toast.LENGTH_LONG).show();
+				new AlertDialog.Builder(MainActivity.this)
+				.setMessage(R.string.checkin)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO dyamicanizeit
+						(new CheckIn(1)).execute();
+						Toast.makeText(MainActivity.this, "Updating your location...", Toast.LENGTH_LONG).show();
+					}
+				})
+				.setNegativeButton("Cancel", null)
+	    		.show();
+
 			}
 		});
 
