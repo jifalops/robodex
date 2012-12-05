@@ -1,9 +1,17 @@
 package com.robodex.location;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +23,7 @@ public class LocationUpdater {
 	public static interface LocationUpdateListener {
 		void onLocationUpdated(Location location);
 		void onTimeLimitExceeded(Location location);
+		void onAddressUpdated(Address address);
 	}
 
 	private final 	LocationManager 	mLocationManager;
@@ -27,14 +36,20 @@ public class LocationUpdater {
 	private	final	LocationUpdateListener mLocationUpdateListener;
 
 	private long mTimeLimit;
+	private Geocoder mGeocoder;
 
 	public LocationUpdater(Context context, LocationUpdateListener listener) {
 		mLocationManager 	= (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		mLocationUpdateListener = listener;
+		mGeocoder = new Geocoder(context, Locale.getDefault());
 		mGpsListener 		= new ProviderListener(LocationManager.GPS_PROVIDER);
 		mNetworkListener	= new ProviderListener(LocationManager.NETWORK_PROVIDER);
 		mPassiveListener	= new ProviderListener(LocationManager.PASSIVE_PROVIDER);
 		setInitialLocation();
+	}
+
+	public void requestAddress(Location location) {
+		new ReverseGeocoder(mGeocoder, mLocationUpdateListener).execute(location);
 	}
 
 	public void setTimeLimit(long millis) {
@@ -186,5 +201,39 @@ public class LocationUpdater {
 	      return provider2 == null;
 	    }
 	    return provider1.equals(provider2);
+	}
+
+
+	private static class ReverseGeocoder extends AsyncTask<android.location.Location, Void, Address> {
+		private Geocoder mGeocoder;
+		private LocationUpdateListener mListener;
+		private ReverseGeocoder(Geocoder geocoder, LocationUpdateListener listener) {
+			mGeocoder = geocoder;
+			mListener = listener;
+		}
+
+		@Override
+		protected Address doInBackground(android.location.Location... params) {
+			List<Address> addresses = new ArrayList<Address>();
+			synchronized (mGeocoder) {
+				try {
+					addresses = mGeocoder.getFromLocation(params[0].getLatitude(),
+							params[0].getLongitude(), 1);
+				}
+				catch (IOException ignored) {}
+				catch (IllegalArgumentException ignored) {}
+			}
+
+			if (addresses != null && !addresses.isEmpty()) {
+				return addresses.get(0);
+			}
+			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(Address result) {
+			if (mListener != null) mListener.onAddressUpdated(result);
+		}
 	}
 }
