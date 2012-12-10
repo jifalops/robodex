@@ -10,6 +10,7 @@ import com.robodex.location.LocationUpdater.LocationUpdateListener;
 import com.robodex.request.ServerContract.RequestField;
 
 import android.content.ContentValues;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 
@@ -38,6 +39,12 @@ public final class ListMap extends BaseRequest {
 			@Override
 			public void onTimeLimitExceeded(Location location) {
 				acceptLocation(location);
+			}
+
+			@Override
+			public void onAddressUpdated(Address address) {
+				// TODO Auto-generated method stub
+
 			}
 		});
 		if (mCallbacks != null) mCallbacks.onSetInitialLocation(mLocationUpdater.getBestLocation());

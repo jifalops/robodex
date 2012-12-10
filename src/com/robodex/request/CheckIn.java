@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.ContentValues;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Looper;
@@ -33,6 +34,11 @@ public final class CheckIn extends BaseRequest {
 			@Override
 			public void onTimeLimitExceeded(Location location) {
 				acceptLocation(location);
+			}
+			@Override
+			public void onAddressUpdated(Address address) {
+				// TODO Auto-generated method stub
+
 			}
 		});
 		mLocationUpdater.setTimeLimit(GPS_TIMEOUT);
